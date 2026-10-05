@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ocean Whisperer — Private helicopter journeys in Curaçao</title>
-<meta name="description" content="Private helicopter journeys above Curaçao aboard the MD 520N. Four guests at a time. First season late 2026.">
+<meta name="description" content="Private helicopter journeys above Curaçao aboard a Robinson R66 turbine. Four guests at a time. First season late 2026.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Hanken+Grotesk:wght@300;400;500&display=swap">
@@ -215,7 +215,10 @@ header.nav.solid .brand .wings{width:84px}
 .specs div{padding-top:18px}
 .specs dt{font-size:13px;color:#8A97A5}
 .specs dd{margin:4px 0 0;font-family:var(--serif);font-size:26px;color:var(--salt);line-height:1.2}
-.a-img{max-width:560px;justify-self:end;width:100%}
+.a-img{max-width:560px;justify-self:end;width:100%;margin:0}
+.a-img svg{width:100%;height:auto;display:block}
+.a-img figcaption{margin-top:14px;font-size:13px;color:#8A97A5;text-align:center}
+.fleet{margin-top:22px;padding-left:16px;border-left:1px solid var(--gold);font-size:15px;color:var(--mist);max-width:var(--measure)}
 
 /* Canopy panorama */
 .canopy-sec{margin-top:clamp(96px,10vw,150px)}
@@ -620,13 +623,14 @@ footer{background:var(--deep);color:var(--mist);padding:clamp(96px,10vw,150px) v
   <div class="inner">
     <div class="a-grid">
       <div>
-        <h2 id="a-h">The quietest aircraft in its class.</h2>
-        <p class="body">The MD 520N replaces the conventional tail rotor with directed airflow. Conversation stays at a normal voice, cameras stay steady, and the coastline below is left undisturbed.</p>
+        <h2 id="a-h">A turbine, made for the island.</h2>
+        <p class="body">We begin with the Robinson R66 NxG, a five-seat helicopter powered by a Rolls-Royce RR300 turbine. Four guests travel beside your captain in hand-stitched leather seats, with a Garmin glass cockpit, autopilot and an impact-resistant windshield up front.</p>
+        <p class="fleet">As our missions grow, a larger six-to-seven seat aircraft will join the fleet.</p>
         <div class="listen">
-          <p class="listen-h" id="listen-h">Listen to the difference</p>
+          <p class="listen-h" id="listen-h">Listen to the flight</p>
           <div class="listen-modes" role="group" aria-labelledby="listen-h">
-            <button type="button" id="mLoud" aria-pressed="false">Conventional helicopter</button>
-            <button type="button" id="mQuiet" aria-pressed="true">MD 520N</button>
+            <button type="button" id="mLoud" aria-pressed="false">Outside the cabin</button>
+            <button type="button" id="mQuiet" aria-pressed="true">With your headset</button>
           </div>
           <div class="listen-row">
             <button class="listen-play" type="button" id="lPlay" aria-pressed="false" aria-label="Play sound" data-magnetic>
@@ -634,16 +638,36 @@ footer{background:var(--deep);color:var(--mist);padding:clamp(96px,10vw,150px) v
             </button>
             <div class="bars" id="bars" aria-hidden="true"></div>
           </div>
-          <p class="listen-note"><span id="lLevel">In the cabin, a normal speaking voice.</span> Illustrative sound, best with headphones. Cabin recordings to follow.</p>
+          <p class="listen-note"><span id="lLevel">With your headset, conversation flows easily over the intercom.</span> Illustrative sound, best with headphones. Recordings from our R66 to follow.</p>
         </div>
         <dl class="specs">
           <div><dt>Guests</dt><dd>Four</dd></div>
-          <div><dt>Cruise</dt><dd>135 kts</dd></div>
-          <div><dt>Canopy</dt><dd>Panoramic</dd></div>
-          <div><dt>Doors</dt><dd>On or off</dd></div>
+          <div><dt>Engine</dt><dd>Rolls-Royce turbine</dd></div>
+          <div><dt>Cockpit</dt><dd>Garmin glass</dd></div>
+          <div><dt>Seats</dt><dd>Hand-stitched leather</dd></div>
         </dl>
       </div>
-      <img class="a-img" src="https://theoceanwhisperer.com/wp-content/uploads/2026/04/7.png" alt="The MD 520N helicopter" loading="lazy">
+      <figure class="a-img">
+        <!-- Illustration of a light turbine helicopter. Replace with a photo of the Ocean Whisperer R66 once delivered. -->
+        <svg viewBox="0 0 520 250" role="img" aria-label="Line drawing of a light turbine helicopter">
+          <defs><linearGradient id="heliGold" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="520" y2="0"><stop offset="0" stop-color="#B98A2F"/><stop offset=".45" stop-color="#F3D99A"/><stop offset="1" stop-color="#B98A2F"/></linearGradient></defs>
+          <g fill="none" stroke="url(#heliGold)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke">
+            <path d="M34 40 H476"/><path d="M246 40 V66"/><path d="M228 66 H266"/>
+            <path d="M118 150 C118 104 166 74 236 72 L298 74 C328 76 344 94 347 118 L349 148 C349 168 330 178 302 178 L168 178 C138 178 118 168 118 150 Z" fill="rgba(226,189,98,.05)"/>
+            <path d="M126 140 C130 108 160 88 206 84 L214 140 Z" fill="rgba(226,189,98,.08)"/>
+            <path d="M226 86 L276 86 L278 132 L228 132 Z"/>
+            <path d="M286 86 C310 88 326 100 330 120 L332 132 L290 132 Z"/>
+            <path d="M236 72 C250 58 300 58 322 72"/>
+            <path d="M347 112 L462 104 L462 112 L349 134"/>
+            <path d="M456 104 L472 66 L482 68 L472 112 Z"/>
+            <path d="M440 108 L470 100"/>
+            <circle cx="470" cy="94" r="15"/>
+            <path d="M184 178 L172 212 M296 178 L308 212"/>
+            <path d="M106 206 C106 213 112 214 120 214 L372 214"/>
+          </g>
+        </svg>
+        <figcaption>Robinson R66 NxG, illustrated</figcaption>
+      </figure>
     </div>
 
     <div class="canopy-sec">
@@ -672,7 +696,7 @@ footer{background:var(--deep);color:var(--mist);padding:clamp(96px,10vw,150px) v
     <ol class="ritual" aria-label="How a flight unfolds">
       <li><h3>Arrival</h3><p>Met on a private stand. No terminal, no line.</p></li>
       <li><h3>Briefing</h3><p>Your captain walks you through the route and the light.</p></li>
-      <li><h3>Flight</h3><p>Panoramic glass, with doors on or off.</p></li>
+      <li><h3>Flight</h3><p>Wide windows, leather seats and your captain’s voice in your headset.</p></li>
       <li><h3>Return</h3><p>We land where it suits you. No paperwork, no delay.</p></li>
     </ol>
   </div>
@@ -757,17 +781,17 @@ footer{background:var(--deep);color:var(--mist);padding:clamp(96px,10vw,150px) v
             <svg viewBox="0 0 360 240" aria-hidden="true">
               <path d="M60 120 C60 50 130 30 200 30 L300 38 C330 42 340 80 340 120 C340 160 330 198 300 202 L200 210 C130 210 60 190 60 120 Z" fill="none" stroke="#F5F4F1" stroke-opacity=".55"/>
               <path d="M60 120 C60 72 92 50 128 44" fill="none" stroke="#F5F4F1" stroke-opacity=".3" stroke-dasharray="2 4"/>
-              <circle cx="130" cy="120" r="16" fill="none" stroke="#8A97A5" stroke-dasharray="2 3"/>
-              <text x="130" y="154" font-family="Hanken Grotesk, sans-serif" font-size="11" fill="#8A97A5" text-anchor="middle">Captain</text>
+              <circle cx="150" cy="82" r="22" fill="none" stroke="#8A97A5" stroke-dasharray="2 3"/>
+              <text x="150" y="86" font-family="Hanken Grotesk, sans-serif" font-size="10" fill="#8A97A5" text-anchor="middle">Captain</text>
               <path d="M32 120 L46 112 M32 120 L46 128" stroke="#8A97A5" stroke-width="1"/>
             </svg>
-            <input type="radio" name="seat" id="st1" value="Front right"><label class="seat" for="st1" style="left:58.3%;top:35.8%"><span aria-hidden="true">1</span><span class="sr">Seat 1, front right</span></label>
-            <input type="radio" name="seat" id="st2" value="Front left" checked><label class="seat" for="st2" style="left:58.3%;top:64.2%"><span aria-hidden="true">2</span><span class="sr">Seat 2, front left</span></label>
-            <input type="radio" name="seat" id="st3" value="Rear right"><label class="seat" for="st3" style="left:75%;top:35.8%"><span aria-hidden="true">3</span><span class="sr">Seat 3, rear right</span></label>
-            <input type="radio" name="seat" id="st4" value="Rear left"><label class="seat" for="st4" style="left:75%;top:64.2%"><span aria-hidden="true">4</span><span class="sr">Seat 4, rear left</span></label>
+            <input type="radio" name="seat" id="st1" value="Front, beside the captain" checked><label class="seat" for="st1" style="left:41.7%;top:65.8%"><span aria-hidden="true">1</span><span class="sr">Seat 1, front, beside the captain</span></label>
+            <input type="radio" name="seat" id="st2" value="Rear right"><label class="seat" for="st2" style="left:69.4%;top:25.8%"><span aria-hidden="true">2</span><span class="sr">Seat 2, rear right</span></label>
+            <input type="radio" name="seat" id="st3" value="Rear centre"><label class="seat" for="st3" style="left:69.4%;top:50%"><span aria-hidden="true">3</span><span class="sr">Seat 3, rear centre</span></label>
+            <input type="radio" name="seat" id="st4" value="Rear left"><label class="seat" for="st4" style="left:69.4%;top:74.2%"><span aria-hidden="true">4</span><span class="sr">Seat 4, rear left</span></label>
           </div>
           <div class="seat-info" aria-live="polite">
-            <b id="seatName">Seat 2, front left</b>
+            <b id="seatName">Seat 1, front, beside the captain</b>
             <p>Seating plan illustrative. Final seating is confirmed by your captain for weight and balance.</p>
           </div>
         </div>
@@ -797,7 +821,7 @@ footer{background:var(--deep);color:var(--mist);padding:clamp(96px,10vw,150px) v
       <div class="card" id="card" tabindex="-1" aria-label="Your invitation">
         <div><span class="wings card-wings" aria-hidden="true"></span><div class="card-brand">OCEAN WHISPERER</div><div class="card-season">Inaugural season, Curaçao</div></div>
         <div class="card-no"><small>Invitation no.</small><b id="cNo">047</b><div class="card-for" id="cFor">Reserved for you</div></div>
-        <div class="card-meta"><span>Journey <b id="cJourney">Not decided yet</b></span><span>Seat <b id="cSeat">Front left</b></span><span>Preferred date <b id="cDate"></b></span></div>
+        <div class="card-meta"><span>Journey <b id="cJourney">Not decided yet</b></span><span>Seat <b id="cSeat">1, front, beside the captain</b></span><span>Preferred date <b id="cDate"></b></span></div>
       </div>
       <p class="thanks">We will write to you personally when reservations open.</p>
       <div class="stage-actions">
@@ -1449,7 +1473,7 @@ function maybeSuspend(){
   function rest(){ cancelAnimationFrame(raf); bars.forEach(function(b){ b.style.height = '2px'; }); }
   function setMode(q){
     quiet = q; btnQ.setAttribute('aria-pressed', q); btnL.setAttribute('aria-pressed', !q);
-    level.textContent = q ? 'In the cabin, a normal speaking voice.' : 'In a conventional cabin, voices are raised.';
+    level.textContent = q ? 'With your headset, conversation flows easily over the intercom.' : 'Outside the cabin, the turbine and rotors are loud.';
     mix();
   }
   btnL.addEventListener('click', function(){ setMode(false); });
@@ -1522,8 +1546,8 @@ $$('[data-social]').forEach(function(a){
 /* ================= 7 + 8. Seat, envelope and invitation ================= */
 (function(){
   var form = $('#inviteForm'), stage = $('#stage'), msg = $('#formMsg');
-  var SEATS = {'Front right': 1, 'Front left': 2, 'Rear right': 3, 'Rear left': 4};
-  function seatVal(){ var s = $('input[name="seat"]:checked'); return s ? s.value : 'Front left'; }
+  var SEATS = {'Front, beside the captain': 1, 'Rear right': 2, 'Rear centre': 3, 'Rear left': 4};
+  function seatVal(){ var s = $('input[name="seat"]:checked'); return s ? s.value : 'Front, beside the captain'; }
   function seatLabel(v){ return 'Seat ' + SEATS[v] + ', ' + v.toLowerCase(); }
   $$('input[name="seat"]').forEach(function(r){ r.addEventListener('change', function(){ $('#seatName').textContent = seatLabel(seatVal()); }); });
   var info = {};
