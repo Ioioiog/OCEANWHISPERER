@@ -4,6 +4,7 @@
 var $ = function(s, r){ return (r || document).querySelector(s); };
 var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+var ROOT = document.documentElement.getAttribute('data-root') || '';   /* '' on the home page, '../' inside page folders */
 var fine = matchMedia('(pointer:fine)').matches;
 var narrowMQ = matchMedia('(max-width:960px)');
 var phoneMQ = matchMedia('(max-width:640px)');
@@ -13,12 +14,16 @@ function smooth(e0, e1, x){ var t = clamp((x - e0) / (e1 - e0), 0, 1); return t 
 function ease(t){ return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 
 /* Shared geometry: Curaçao and the four routes, in map units */
-var ISLAND = 'M40 70 Q95 66 150 95 Q220 118 300 150 Q380 180 450 215 Q520 248 580 290 Q612 312 608 330 Q590 345 540 335 Q480 318 430 300 Q392 288 355 276 Q318 264 270 240 Q220 216 170 190 Q120 162 80 130 Q48 102 40 70 Z';
+/* Real coastline of Curaçao and Klein Curaçao (OpenStreetMap data, via geo-maps, 100 m), in map units */
+var ISLAND_MAIN = 'M434.2 454.8 L425.6 449.6 L428.7 453.0 L420.7 461.8 L372.7 430.8 L338.7 417.1 L345.3 414.4 L341.7 412.6 L346.5 404.4 L351.6 404.7 L355.8 411.4 L359.2 408.7 L356.1 404.8 L362.9 405.1 L369.3 411.2 L365.3 405.2 L377.3 405.6 L377.3 374.2 L367.1 384.3 L362.8 374.7 L356.9 376.5 L356.2 385.5 L361.6 388.4 L344.5 388.4 L344.5 386.3 L342.8 388.4 L339.1 388.4 L338.5 385.5 L332.9 388.4 L333.3 384.8 L321.8 385.9 L322.2 388.4 L305.8 388.4 L319.5 403.5 L342.4 404.3 L339.8 412.2 L335.7 416.0 L331.4 415.5 L331.4 416.8 L293.8 395.6 L301.9 375.9 L294.2 368.8 L290.1 371.4 L293.1 391.7 L259.4 371.4 L247.8 340.6 L237.4 331.5 L228.0 315.3 L228.6 305.0 L219.1 295.2 L204.1 289.1 L204.1 268.0 L189.1 273.0 L159.5 298.7 L152.3 295.4 L141.8 282.9 L141.4 263.2 L132.5 258.6 L127.6 242.5 L117.1 240.7 L113.3 222.5 L85.1 196.7 L100.0 183.5 L93.1 178.1 L89.8 185.2 L87.9 178.2 L88.5 190.9 L75.7 196.3 L50.0 163.3 L48.5 158.8 L63.4 143.7 L54.7 129.9 L50.6 90.5 L55.0 83.5 L47.6 71.0 L51.7 59.6 L40.4 44.9 L48.7 32.0 L56.9 30.0 L92.5 56.3 L159.7 84.4 L174.3 108.6 L169.7 109.4 L167.4 112.3 L174.9 110.4 L183.5 127.0 L183.8 133.8 L174.4 136.8 L184.5 137.4 L183.7 169.2 L188.7 184.4 L180.0 190.9 L190.7 189.5 L217.6 234.7 L280.1 288.3 L323.2 304.7 L350.0 304.3 L377.6 316.7 L447.6 322.9 L492.7 353.6 L508.6 380.6 L499.3 389.3 L485.6 383.7 L482.6 389.3 L489.5 393.3 L479.7 395.2 L479.8 401.9 L485.7 399.5 L489.8 408.9 L493.2 400.0 L497.0 406.9 L512.8 408.1 L502.1 391.5 L510.5 385.1 L535.8 429.7 L600.0 498.1 L585.8 496.4 L582.5 501.3 L596.9 499.9 L585.4 502.7 L550.4 496.9 L545.5 500.1 L527.8 504.0 L522.2 509.1 L512.3 507.0 L486.4 497.4 L476.1 491.3 L491.0 497.3 L487.4 491.1 L476.9 489.5 L470.4 478.1 L461.4 477.0 L471.9 489.0 L447.6 468.8 L448.5 454.3 L460.4 464.2 L465.9 450.3 L461.4 440.3 L452.4 439.1 L453.5 448.3 L452.0 451.2 L449.7 442.6 L447.9 448.7 L443.9 443.1 L443.4 446.5 L446.2 453.0 L443.8 449.6 L442.6 443.3 L440.7 448.9 L436.5 441.3 L435.0 441.9 L435.0 432.0 L420.6 446.2 L428.4 446.2 L439.1 453.6 L437.6 462.4 L441.7 456.7 L448.3 457.9 L446.0 471.5 L439.1 471.2 Z';
+var ISLAND_KLEIN = 'M726.2 576.1 L722.3 586.0 L716.5 557.9 L724.7 559.9 Z';
+var ISLAND = ISLAND_MAIN + ' ' + ISLAND_KLEIN;
+var MAP = {cx: 345, cy: 290, hato: [306.9, 303.0], willemstad: [341.5, 415.7]};
 var ROUTES = [
-  'M322 178 C340 230 330 285 355 300 S400 300 385 270 S340 220 322 178',
-  'M322 178 C300 270 220 240 160 215 C110 190 60 140 45 95 C90 60 180 90 240 110 C280 130 305 160 322 178',
-  'M322 178 C380 170 520 220 615 305 C600 350 500 350 430 320 C380 305 330 300 300 280 C240 250 150 230 90 170 C60 140 40 100 60 75 C120 70 250 110 322 178',
-  'M322 178 C320 260 300 320 240 330 C170 340 120 280 110 230 C105 200 200 170 322 178'
+  'M306.9 303.0 C297.1 303.0 314.8 338.0 319.8 355.2 C324.8 372.5 332.5 391.3 336.9 406.3 C341.3 421.3 336.9 437.7 346.1 445.3 C355.3 452.9 380.0 455.4 392.1 452.0 C404.1 448.7 420.5 441.3 418.3 425.1 C416.1 409.0 397.5 375.6 378.9 355.2 C360.4 334.9 316.8 303.0 306.9 303.0',
+  'M306.9 303.0 C314.6 327.6 319.9 381.9 313.2 402.3 C306.6 422.6 288.1 429.6 267.3 425.1 C246.5 420.7 212.5 398.3 188.4 375.4 C164.4 352.6 141.4 320.5 122.8 288.0 C104.1 255.6 93.2 216.4 76.8 180.5 C60.4 144.7 27.5 101.0 24.2 73.0 C21.0 45.0 39.6 12.5 57.1 12.5 C74.6 12.5 104.1 47.2 129.3 73.0 C154.5 98.8 185.2 136.8 208.1 167.1 C231.1 197.3 250.8 231.8 267.3 254.4 C283.7 277.1 299.3 278.3 306.9 303.0',
+  'M306.9 303.0 C331.0 320.9 368.0 315.2 398.6 328.4 C429.2 341.6 461.0 362.0 490.6 382.1 C520.1 402.3 549.7 426.9 576.0 449.3 C602.2 471.7 626.3 493.0 648.2 516.5 C670.1 540.0 689.8 581.5 707.3 590.4 C724.8 599.4 754.4 578.1 753.3 570.3 C752.2 562.4 733.6 552.4 700.8 543.4 C667.9 534.4 600.1 526.6 556.3 516.5 C512.5 506.4 474.2 495.2 438.0 482.9 C401.9 470.6 376.7 457.2 339.5 442.6 C302.3 428.0 250.8 419.1 214.7 395.6 C178.6 372.0 149.0 335.1 122.8 301.5 C96.5 267.9 74.6 234.3 57.1 194.0 C39.6 153.6 13.3 89.8 17.7 59.6 C22.0 29.3 57.1 5.8 83.4 12.5 C109.6 19.2 146.8 65.2 175.3 99.9 C203.8 134.6 232.2 187.0 254.1 220.8 C276.1 254.7 282.8 285.0 306.9 303.0',
+  'M306.9 303.0 C323.4 311.9 324.2 358.9 326.4 382.1 C328.5 405.4 331.8 423.6 319.8 442.6 C307.8 461.6 280.4 493.0 254.1 496.4 C227.9 499.7 179.7 480.7 162.2 462.8 C144.7 444.8 138.1 411.2 149.0 388.8 C160.0 366.4 201.5 342.7 227.9 328.4 C254.2 314.1 290.5 294.0 306.9 303.0'
 ];
 var NAMES = ['Willemstad Prelude', 'Coastal Sonata', 'The Whisperer’s Hour', 'Sunset Ceremony'];
 var PHOTOS = [
@@ -91,7 +96,7 @@ function applyLight(){
   PAL = PALETTES[key];
   var root = document.documentElement.style;
   root.setProperty('--haze', PAL.haze); root.setProperty('--sky', PAL.sky); root.setProperty('--route', PAL.route);
-  $('#heroTime').innerHTML = PALETTES[forced] ? 'Previewing the island ' + PAL.at + '.' : 'In Willemstad it is <b>' + fmt(h) + '</b>, ' + PAL.name + '.';
+  if ($('#heroTime')) $('#heroTime').innerHTML = PALETTES[forced] ? 'Previewing the island ' + PAL.at + '.' : 'In Willemstad it is <b>' + fmt(h) + '</b>, ' + PAL.name + '.';
   lightSubs.forEach(function(f){ f(PAL); });
 }
 applyLight();
@@ -135,7 +140,7 @@ document.addEventListener('click', function(e){
   var id = a.getAttribute('href'), t = id.length > 1 ? document.querySelector(id) : null;
   if (!t) return;
   e.preventDefault();
-  lenis.scrollTo(t, {offset: id === '#top' ? 0 : -70, duration: 1.6});
+  lenis.scrollTo(t, {offset: id === '#top' ? 0 : (t.classList.contains('xp-item') ? -150 : -70), duration: 1.6});
 });
 
 /* ================= 9b. Magnetic buttons ================= */
@@ -151,7 +156,7 @@ if (fine && !reduce){
 
 /* ================= Path sampling helpers ================= */
 function samplePath(d, perSeg){
-  var t = d.replace(/([MQCSZ])/g, ' $1 ').trim().split(/[\s,]+/), i = 0, pts = [], cx = 0, cy = 0, lc = null, cmd;
+  var t = d.replace(/([MLQCSZ])/g, ' $1 ').trim().split(/[\s,]+/), i = 0, pts = [], cx = 0, cy = 0, lc = null, cmd;
   function n(){ return parseFloat(t[i++]); }
   while (i < t.length){
     cmd = t[i++];
@@ -164,6 +169,7 @@ function samplePath(d, perSeg){
       var x2 = n(), y2 = n(), x3 = n(), y3 = n();
       for (var j = 1; j <= perSeg; j++){ var v = j / perSeg, m = 1 - v; pts.push([m*m*m*cx + 3*m*m*v*x1 + 3*m*v*v*x2 + v*v*v*x3, m*m*m*cy + 3*m*m*v*y1 + 3*m*v*v*y2 + v*v*v*y3]); }
       lc = [x2, y2]; cx = x3; cy = y3; }
+    else if (cmd === 'L'){ cx = n(); cy = n(); pts.push([cx, cy]); }
     else if (cmd === 'Z'){ /* closed */ }
   }
   return pts;
@@ -172,14 +178,15 @@ function samplePath(d, perSeg){
 /* ================= 1. 3D hero ================= */
 var heroStage = $('#heroStage'), heroSvg = $('#heroSvg');
 function frameSvg(){
-  heroSvg.setAttribute('viewBox', phoneMQ.matches ? '320 110 960 540' : '0 0 1600 1000');
+  if (!heroSvg) return;
+  heroSvg.setAttribute('viewBox', phoneMQ.matches ? '470 0 660 520' : '0 0 1600 1000');
   heroSvg.setAttribute('preserveAspectRatio', phoneMQ.matches ? 'xMidYMid meet' : 'xMidYMid slice');
 }
 frameSvg();
 (phoneMQ.addEventListener ? phoneMQ.addEventListener('change', frameSvg) : phoneMQ.addListener(frameSvg));
 
 (function initGL(){
-  if (reduce || !window.THREE) return;
+  if (reduce || !window.THREE || !$('#heroGL')) return;
   var THREE = window.THREE, canvas = $('#heroGL'), renderer;
   try { renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true, alpha: true, powerPreference: 'high-performance'}); }
   catch (e) { return; }
@@ -190,33 +197,40 @@ frameSvg();
 
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(32, 1, 0.1, 400);
-  var K = 0.06, CX = 326, CY = 205;
-  var poly = samplePath(ISLAND, 10).map(function(p){ return [(p[0] - CX) * K, (p[1] - CY) * K]; });
+  var K = 0.06, CX = MAP.cx, CY = MAP.cy;
+  var toW = function(p){ return [(p[0] - CX) * K, (p[1] - CY) * K]; };
+  var rings = [samplePath(ISLAND_MAIN, 1).map(toW), samplePath(ISLAND_KLEIN, 1).map(toW)];
   var minX = 1e9, maxX = -1e9, minZ = 1e9, maxZ = -1e9;
-  poly.forEach(function(p){ minX = Math.min(minX, p[0]); maxX = Math.max(maxX, p[0]); minZ = Math.min(minZ, p[1]); maxZ = Math.max(maxZ, p[1]); });
+  rings.forEach(function(r){ r.forEach(function(p){ minX = Math.min(minX, p[0]); maxX = Math.max(maxX, p[0]); minZ = Math.min(minZ, p[1]); maxZ = Math.max(maxZ, p[1]); }); });
   function inside(x, z){
     var c = false;
-    for (var i = 0, j = poly.length - 1; i < poly.length; j = i++){
-      var xi = poly[i][0], zi = poly[i][1], xj = poly[j][0], zj = poly[j][1];
-      if (((zi > z) !== (zj > z)) && (x < (xj - xi) * (z - zi) / (zj - zi) + xi)) c = !c;
-    }
+    rings.forEach(function(poly){
+      for (var i = 0, j = poly.length - 1; i < poly.length; j = i++){
+        var xi = poly[i][0], zi = poly[i][1], xj = poly[j][0], zj = poly[j][1];
+        if (((zi > z) !== (zj > z)) && (x < (xj - xi) * (z - zi) / (zj - zi) + xi)) c = !c;
+      }
+    });
     return c;
   }
   function edgeDist(x, z){
     var best = 1e9;
-    for (var i = 0, j = poly.length - 1; i < poly.length; j = i++){
-      var ax = poly[j][0], az = poly[j][1], bx = poly[i][0], bz = poly[i][1];
-      var dx = bx - ax, dz = bz - az, l = dx * dx + dz * dz, t = l ? clamp(((x - ax) * dx + (z - az) * dz) / l, 0, 1) : 0;
-      var px = ax + t * dx - x, pz = az + t * dz - z, d = px * px + pz * pz;
-      if (d < best) best = d;
-    }
+    rings.forEach(function(poly){
+      for (var i = 0, j = poly.length - 1; i < poly.length; j = i++){
+        var ax = poly[j][0], az = poly[j][1], bx = poly[i][0], bz = poly[i][1];
+        var dx = bx - ax, dz = bz - az, l = dx * dx + dz * dz, t = l ? clamp(((x - ax) * dx + (z - az) * dz) / l, 0, 1) : 0;
+        var px = ax + t * dx - x, pz = az + t * dz - z, d = px * px + pz * pz;
+        if (d < best) best = d;
+      }
+    });
     return Math.sqrt(best);
   }
+  /* Relief: Christoffelberg in the north-west, Tafelberg near Santa Barbara in the east */
+  function bump(x, z, bx, bz, r){ var dx = x - bx, dz = z - bz; return Math.exp(-(dx * dx + dz * dz) / r); }
   function noise(x, z){ return 0.5 + 0.22 * Math.sin(x * 0.9 + z * 0.5) + 0.18 * Math.sin(x * 0.43 - z * 1.3 + 1.7) + 0.1 * Math.sin(x * 2.1 + z * 1.7 + 0.3); }
   function height(x, z){
     if (x < minX - 5.5 || x > maxX + 5.5 || z < minZ - 5.5 || z > maxZ + 5.5) return -0.62;
     var d = edgeDist(x, z);
-    if (inside(x, z)) return smooth(0, 2.4, d) * (0.35 + 0.65 * noise(x, z)) * (0.7 + 1.5 * smooth(6, -14, x)) * 0.95;
+    if (inside(x, z)) return smooth(0, 1.6, d) * (0.3 + 0.55 * noise(x, z)) * (0.55 + 1.9 * bump(x, z, -13.9, -9.8, 42) + 0.7 * bump(x, z, 10.3, 9.5, 5)) * 0.95;
     return -Math.min(d, 5) / 5 * 0.6 - 0.02;
   }
 
@@ -236,7 +250,7 @@ frameSvg();
   var uni = {
     uLand: {value: new THREE.Color()}, uLine: {value: new THREE.Color()}, uSea: {value: new THREE.Color()},
     uSeaLine: {value: new THREE.Color()}, uFog: {value: new THREE.Color()},
-    uNear: {value: 28}, uFar: {value: 80}, uTime: {value: 0}
+    uNear: {value: 42}, uFar: {value: 115}, uTime: {value: 0}
   };
   var mat = new THREE.ShaderMaterial({
     extensions: {derivatives: true}, uniforms: uni,
@@ -277,7 +291,7 @@ frameSvg();
   }
   var heliGlow = new THREE.Sprite(new THREE.SpriteMaterial({map: glowTex('rgba(255,240,210,1)', 'rgba(217,191,140,.45)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending}));
   heliGlow.scale.set(1.1, 1.1, 1); heliGlow.visible = false; scene.add(heliGlow);
-  var hato = new THREE.Vector3((322 - CX) * K, 0, (178 - CY) * K); hato.y = Math.max(gridH(hato.x, hato.z), 0) + 0.05;
+  var hato = new THREE.Vector3((MAP.hato[0] - CX) * K, 0, (MAP.hato[1] - CY) * K); hato.y = Math.max(gridH(hato.x, hato.z), 0) + 0.05;
   var ring = new THREE.Sprite(new THREE.SpriteMaterial({map: glowTex('rgba(255,255,255,1)', 'rgba(255,255,255,.25)'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending}));
   ring.position.copy(hato); ring.scale.set(.5, .5, 1); scene.add(ring);
 
@@ -304,8 +318,8 @@ frameSvg();
     var w = heroStage.clientWidth, h = heroStage.clientHeight; if (!w || !h) return;
     renderer.setSize(w, h, false); camera.aspect = aspect = w / h; camera.updateProjectionMatrix();
     var hfov = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * aspect);
-    var dist = (phoneMQ.matches ? 17.5 : 23) / Math.tan(hfov / 2), elev = THREE.MathUtils.degToRad(phoneMQ.matches ? 46 : 40);
-    finalTgt.set(0, -0.6, phoneMQ.matches ? 0.6 : 6.8);
+    var dist = (phoneMQ.matches ? 19 : 28) / Math.tan(hfov / 2), elev = THREE.MathUtils.degToRad(phoneMQ.matches ? 46 : 40);
+    finalTgt.set(phoneMQ.matches ? 1.5 : 1, -0.6, phoneMQ.matches ? 1.5 : 11);
     finalPos.set(0, Math.sin(elev) * dist, Math.cos(elev) * dist).add(finalTgt);
   }
   layout(); addEventListener('resize', layout);
@@ -361,6 +375,7 @@ frameSvg();
 /* Intro runs after the heavy 3D setup so its timing is never squeezed */
 (function(){
   var veil = $('#veil'), seen = false;
+  if (!veil){ setTimeout(ready, 60); return; }
   try { seen = sessionStorage.getItem('ow-intro') === '1'; } catch (e) {}
   if (reduce || seen){ veil.remove(); setTimeout(ready, 60); return; }
   try { sessionStorage.setItem('ow-intro', '1'); } catch (e) {}
@@ -372,17 +387,20 @@ frameSvg();
 
 /* ================= 4. Journeys: one continuous flight ================= */
 (function(){
+  if (!$('#flightMap')) return;
   var svg = $('#flightMap'), panel = $('.flight'), fRoute = $('#fRoute'), heli = $('#fHeli'), wins = $('#fWins');
   var steps = $$('.j-step'), NS = 'http://www.w3.org/2000/svg';
-  var ring = function(sc, op, fill){ return '<path d="' + ISLAND + '" transform="translate(330 210) scale(' + sc + ') translate(-330 -210)" fill="' + (fill || 'none') + '" stroke="#8FA6BC" stroke-opacity="' + op + '" stroke-width="1" vector-effect="non-scaling-stroke"/>'; };
-  $('#fIsland').innerHTML = ring(1.32, .1) + ring(1.18, .18) + ring(1.07, .28) + ring(1, .75, '#12253C') + ring(.72, .25) + ring(.44, .16);
+  /* soft offset bands around the real coastline, in the same blue as before */
+  var halo = function(w, op){ return '<path d="' + ISLAND + '" fill="none" stroke="#8FA6BC" stroke-opacity="' + op + '" stroke-width="' + w + '" stroke-linejoin="round"/>'; };
+  $('#fIsland').innerHTML = halo(46, .04) + halo(28, .06) + halo(14, .09) +
+    '<path d="' + ISLAND + '" fill="#12253C" stroke="#8FA6BC" stroke-opacity=".75" stroke-width="1" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>';
   $('#fFaint').innerHTML = ROUTES.map(function(d){ return '<path class="f-faint" d="' + d + '"/>'; }).join('');
 
   var lens = [], winEls = [];
   ROUTES.forEach(function(d, i){
     fRoute.setAttribute('d', d); var L = fRoute.getTotalLength(); lens.push(L);
     var pt = fRoute.getPointAtLength(L * 0.55), w = 132, h = 88;
-    var wx = clamp(pt.x + 18, 30, 470), wy = pt.y - h - 26; if (wy < -10) wy = pt.y + 26;
+    var wx = clamp(pt.x + 18, 20, 600), wy = pt.y - h - 26; if (wy < 0) wy = pt.y + 26;
     var g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'win');
     var cr = $('#wc' + i + ' rect'); cr.setAttribute('x', wx); cr.setAttribute('y', wy); cr.setAttribute('width', w); cr.setAttribute('height', h);
     var ly = wy > pt.y ? wy : wy + h;
@@ -392,7 +410,8 @@ frameSvg();
     wins.appendChild(g); winEls.push(g);
   });
 
-  var cur = -1, len = 0, cam = {x: 326, y: 205, w: 600}, tgt = {x: 326, y: 205, w: 600}, moving = false;
+  var FULL = {x: 380, y: 300, w: 760};
+  var cur = -1, len = 0, cam = {x: FULL.x, y: FULL.y, w: FULL.w}, tgt = {x: FULL.x, y: FULL.y, w: FULL.w}, moving = false;
   function update(){
     var top = narrowMQ.matches ? panel.getBoundingClientRect().bottom : 0;
     var line = narrowMQ.matches ? top + (innerHeight - top) * 0.35 : innerHeight * 0.5;
@@ -413,13 +432,15 @@ frameSvg();
     winEls.forEach(function(g, k){ g.style.opacity = k === idx ? (smooth(0.2, 0.34, p) * (1 - smooth(0.86, 0.97, p))).toFixed(2) : 0; });
     var z = smooth(0.02, 0.16, p) * (1 - smooth(0.86, 0.99, p));
     var zw = narrowMQ.matches ? 340 : 300;
-    tgt.w = lerp(600, zw, z); tgt.x = lerp(326, pt.x, z); tgt.y = lerp(205, pt.y, z);
+    tgt.w = lerp(FULL.w, zw, z); tgt.x = lerp(FULL.x, pt.x, z); tgt.y = lerp(FULL.y, pt.y, z);
     if (!moving){ moving = true; requestAnimationFrame(glide); }
   }
   function glide(){
     var k = reduce ? 1 : 0.1;
     cam.x += (tgt.x - cam.x) * k; cam.y += (tgt.y - cam.y) * k; cam.w += (tgt.w - cam.w) * k;
     var ar = panel.clientHeight / Math.max(panel.clientWidth, 1), h = cam.w * ar;
+    /* keep the gold line about 2.4 px wide on screen at every zoom level */
+    fRoute.style.strokeWidth = (2.4 * cam.w / Math.max(panel.clientWidth, 1)).toFixed(3);
     svg.setAttribute('viewBox', (cam.x - cam.w / 2).toFixed(1) + ' ' + (cam.y - h / 2).toFixed(1) + ' ' + cam.w.toFixed(1) + ' ' + h.toFixed(1));
     if (Math.abs(tgt.x - cam.x) + Math.abs(tgt.y - cam.y) + Math.abs(tgt.w - cam.w) > 0.1) requestAnimationFrame(glide);
     else moving = false;
@@ -429,10 +450,11 @@ frameSvg();
 
 /* ================= 10. Passing through cloud between sections ================= */
 (function(){
-  if (reduce) return;
+  /* the passing cloud belongs to the long home page only */
+  if (reduce || !$('#heroStage')) return;
   var mist = $('#mist'), marks = [];
   var after = ['#top', '#journeys', '#arrival', '#charter', '.founders'];
-  function measure(){ marks = after.map(function(s){ var el = $(s); return el.getBoundingClientRect().bottom + scrollY; }); }
+  function measure(){ marks = after.map(function(s){ return $(s); }).filter(Boolean).map(function(el){ return el.getBoundingClientRect().bottom + scrollY; }); }
   measure(); addEventListener('resize', measure); addEventListener('load', measure); setTimeout(measure, 1500);
   scrollSubs.push(function(){
     var c = scrollY + innerHeight * 0.5, best = 1e9, bm = 0;
@@ -540,6 +562,7 @@ function maybeSuspend(){
 })();
 
 (function(){
+  if (!$('#bars')) return;
   var barsEl = $('#bars'), N = 48, bars = [];
   for (var i = 0; i < N; i++){ var b = document.createElement('span'); barsEl.appendChild(b); bars.push(b); }
   var btnL = $('#mLoud'), btnQ = $('#mQuiet'), play = $('#lPlay'), icon = $('#lIcon'), level = $('#lLevel');
@@ -583,7 +606,7 @@ function maybeSuspend(){
   function rest(){ cancelAnimationFrame(raf); bars.forEach(function(b){ b.style.height = '2px'; }); }
   function setMode(q){
     quiet = q; btnQ.setAttribute('aria-pressed', q); btnL.setAttribute('aria-pressed', !q);
-    level.textContent = q ? 'In the cabin, a normal speaking voice.' : 'In a conventional cabin, voices are raised.';
+    level.textContent = q ? 'With your headset, conversation flows easily over the intercom.' : 'Outside the cabin, the turbine and rotors are loud.';
     mix();
   }
   btnL.addEventListener('click', function(){ setMode(false); });
@@ -599,13 +622,14 @@ function maybeSuspend(){
     if (on){ cancelAnimationFrame(raf); draw(); } else { setTimeout(function(){ if (!listenState.playing) rest(); }, 700); maybeSuspend(); }
   });
   if ('IntersectionObserver' in window){
-    new IntersectionObserver(function(es){ if (!es[0].isIntersecting && listenState.playing) play.click(); }).observe($('#aircraft'));
+    new IntersectionObserver(function(es){ if (!es[0].isIntersecting && listenState.playing) play.click(); }).observe($('#bars').closest('section'));
   }
   setMode(true);
 })();
 
 /* ================= 5. The view through the canopy ================= */
 (function(){
+  if (!$('#canopy')) return;
   var can = $('#canopy'), pano = $('#pano');
   var pos = 0.5, vel = 0, dragging = false, lastX = 0, auto = !reduce, t0 = performance.now(), on = false, running = false;
   function apply(){ pano.style.transform = 'translate3d(' + (-pos * 50).toFixed(3) + '%,0,0)'; }
@@ -634,6 +658,241 @@ function maybeSuspend(){
   apply();
 })();
 
+/* ================= Private charter: picture follows the line you look at; enquire pre-fills the form ================= */
+(function(){
+  var items = $$('.c-item'), pics = $$('.c-visual img'), cur = 0;
+  function show(i){
+    if (i === cur) return; cur = i;
+    items.forEach(function(it, k){ it.classList.toggle('active', k === i); });
+    pics.forEach(function(p, k){ p.classList.toggle('on', k === i); });
+  }
+  items.forEach(function(it, i){
+    it.addEventListener('pointerenter', function(){ show(i); });
+    it.addEventListener('focusin', function(){ show(i); });
+  });
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) show(+e.target.getAttribute('data-i')); }); }, {rootMargin: '-45% 0px -45% 0px'});
+    items.forEach(function(it){ io.observe(it); });
+  }
+  $$('.c-enquire[data-charter]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      var type = a.getAttribute('data-charter'), note = $('#fNote'), prefix = 'Private charter: ' + type + '. ';
+      note.value = prefix + note.value.replace(/^Private charter: [^.]*\. ?/, '');
+      $('#formMsg').textContent = 'We have noted your interest in ' + type.toLowerCase() + '. Add your details below.';
+      var t = $('#invite');
+      if (lenis) lenis.scrollTo(t, {offset: -70, duration: 1.6}); else t.scrollIntoView({behavior: reduce ? 'auto' : 'smooth'});
+      setTimeout(function(){ $('#fName').focus({preventScroll: true}); }, reduce ? 0 : 1500);
+    });
+  });
+})();
+
+/* ================= Experiences page: route maps that draw themselves, chapter index ================= */
+(function(){
+  if (!$('.xp-hero')) return;
+  var NS = 'http://www.w3.org/2000/svg';
+  function mapSvg(svg, routes){
+    var halo = function(w, op){ return '<path d="' + ISLAND + '" fill="none" stroke="#8FA6BC" stroke-opacity="' + op + '" stroke-width="' + w + '" stroke-linejoin="round"/>'; };
+    svg.innerHTML = halo(46, .04) + halo(28, .06) + halo(14, .09) +
+      '<path d="' + ISLAND + '" fill="#12253C" stroke="#8FA6BC" stroke-opacity=".75" stroke-width="1" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+      routes.map(function(i, k){ return '<path class="xm-route" pathLength="1" style="transition-delay:' + (k * 0.45) + 's" d="' + ROUTES[i] + '"/>'; }).join('') +
+      '<circle cx="' + MAP.hato[0] + '" cy="' + MAP.hato[1] + '" r="5" fill="#F5F4F1"/>';
+  }
+  var heroMap = $('#xpHeroMap'); if (heroMap) mapSvg(heroMap, [0, 1, 2, 3]);
+  $$('.xp-map').forEach(function(svg){ mapSvg(svg, [+svg.getAttribute('data-route')]); });
+  /* draw a route when its map comes into view */
+  var draw = function(el){ el.classList.add('drawn'); };
+  if ('IntersectionObserver' in window && !reduce){
+    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ draw(e.target); io.unobserve(e.target); } }); }, {threshold: 0.35});
+    $$('.xp-map, #xpHeroMap, .xp-profile').forEach(function(m){ io.observe(m); });
+  } else $$('.xp-map, #xpHeroMap, .xp-profile').forEach(draw);
+})();
+
+/* ================= Transfers page: arcs from Hato to each destination ================= */
+(function(){
+  if (!$('.tr-hero')) return;
+  var ARCS = ["M306.9 303.0 Q381.6 354.6 394.0 444.6", "M306.9 303.0 Q420.5 354.1 459.6 472.4", "M306.9 303.0 Q572.5 345.6 720.5 570.3", "M306.9 303.0 Q234.1 121.2 50.9 52.0"], ENDS = [[394.0, 444.6], [459.6, 472.4], [720.5, 570.3], [50.9, 52.0]];
+  function build(svg, faint){
+    var halo = function(w, op){ return '<path d="' + ISLAND + '" fill="none" stroke="#8FA6BC" stroke-opacity="' + op + '" stroke-width="' + w + '" stroke-linejoin="round"/>'; };
+    svg.innerHTML = halo(46, .04) + halo(28, .06) + halo(14, .09) +
+      '<path d="' + ISLAND + '" fill="#12253C" stroke="#8FA6BC" stroke-opacity=".75" stroke-width="1" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+      ARCS.map(function(d, i){ return '<path class="tr-arc" data-i="' + i + '" pathLength="1" style="transition-delay:' + (faint ? 0 : i * 0.5) + 's" d="' + d + '"/>'; }).join('') +
+      ENDS.map(function(p, i){ return '<circle class="tr-end" data-i="' + i + '" cx="' + p[0] + '" cy="' + p[1] + '" r="5"/>'; }).join('') +
+      '<circle cx="' + MAP.hato[0] + '" cy="' + MAP.hato[1] + '" r="6" fill="#F5F4F1"/>' +
+      '<circle class="tr-dot" r="6" cx="' + MAP.hato[0] + '" cy="' + MAP.hato[1] + '"/>';
+  }
+  var hero = $('#trHeroMap'), panel = $('#trPanelMap');
+  build(hero, false); build(panel, true);
+  var drawHero = function(){ hero.classList.add('drawn'); };
+  if (reduce) drawHero(); else setTimeout(drawHero, 400);
+  /* the panel follows the destination you are reading or pointing at */
+  var rows = $$('.tr-row'), pics = $$('.tr-photo img'), cur = -1, dot = $('.tr-dot', panel), anim = null;
+  function fly(i){
+    var arc = $('.tr-arc[data-i="' + i + '"]', panel), L = arc.getTotalLength(), t0 = performance.now();
+    cancelAnimationFrame(anim);
+    if (reduce){ var e = arc.getPointAtLength(L); dot.setAttribute('cx', e.x); dot.setAttribute('cy', e.y); return; }
+    (function step(now){
+      var k = Math.min(1, (now - t0) / 1800); k = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      var p = arc.getPointAtLength(L * k); dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y);
+      if (k < 1) anim = requestAnimationFrame(step);
+    })(t0);
+  }
+  function show(i){
+    if (i === cur) return; cur = i;
+    rows.forEach(function(r, k){ r.classList.toggle('active', k === i); });
+    pics.forEach(function(p, k){ p.classList.toggle('on', k === i); });
+    $$('.tr-arc', panel).forEach(function(a, k){ a.classList.toggle('on', k === i); });
+    $$('.tr-end', panel).forEach(function(a, k){ a.classList.toggle('on', k === i); });
+    $('#trName').textContent = rows[i].getAttribute('data-name');
+    fly(i);
+  }
+  rows.forEach(function(r, i){ r.addEventListener('pointerenter', function(){ show(i); }); r.addEventListener('focusin', function(){ show(i); }); });
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) show(+e.target.getAttribute('data-i')); }); }, {rootMargin: '-45% 0px -45% 0px'});
+    rows.forEach(function(r){ io.observe(r); });
+  }
+  show(0);
+})();
+
+/* ================= Aircraft page: the illustration explains itself; the cabin, seat by seat ================= */
+(function(){
+  if (!$('.ac-hero')) return;
+  var heli = $('.ac-heli');
+  $$('.ac-lines path, .ac-lines circle', heli).forEach(function(el){ el.setAttribute('pathLength', '1'); });
+  setTimeout(function(){ heli.classList.add('drawn'); }, reduce ? 0 : 300);
+  var dots = $$('.hs'), panels = $$('.hs-panel'), list = $$('.ac-list button');
+  function feature(i){
+    dots.forEach(function(d, k){ d.classList.toggle('on', k === i); });
+    panels.forEach(function(p, k){ p.classList.toggle('on', k === i); });
+    list.forEach(function(b, k){ b.setAttribute('aria-pressed', k === i); });
+  }
+  dots.concat(list).forEach(function(b){
+    var i = +b.getAttribute('data-k');
+    b.addEventListener('click', function(){ feature(i); });
+    if (fine) b.addEventListener('pointerenter', function(){ feature(i); });
+  });
+  feature(0);
+  var seats = $$('.ac-seat'), sp = $$('.seat-panel');
+  seats.forEach(function(b, i){
+    b.addEventListener('click', function(){
+      seats.forEach(function(x, k){ x.classList.toggle('on', k === i); x.setAttribute('aria-pressed', k === i); });
+      sp.forEach(function(x, k){ x.classList.toggle('on', k === i); });
+    });
+  });
+})();
+
+/* ================= Chapter index (Experiences, Charters): follows the chapter in view ================= */
+(function(){
+  var links = $$('.xp-index a'); if (!links.length || !('IntersectionObserver' in window)) return;
+  var targets = links.map(function(a){ return $(a.getAttribute('href')); }).filter(Boolean);
+  var jo = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ var id = e.target.id; links.forEach(function(a){ a.classList.toggle('on', a.getAttribute('href') === '#' + id); }); } }); }, {rootMargin: '-45% 0px -50% 0px'});
+  targets.forEach(function(t){ jo.observe(t); });
+})();
+
+/* ================= Charters page: compose a brief; chapters with their own mood ================= */
+(function(){
+  if (!$('.ch-hero')) return;
+  var out = {occ: $('#chOcc'), when: $('#chWhen'), who: $('#chWho')}, send = $('#chSend');
+  function val(n){ var r = $('input[name="' + n + '"]:checked'); return r ? r.value : ''; }
+  function update(){
+    var o = val('ch-occ'), w = val('ch-when'), g = val('ch-guests');
+    out.occ.textContent = o; out.when.textContent = w; out.who.textContent = g + (g === '1' ? ' guest' : ' guests');
+    var brief = o + ', ' + w.toLowerCase() + ', ' + g + (g === '1' ? ' guest' : ' guests');
+    send.setAttribute('href', (ROOT || './') + '?brief=' + encodeURIComponent(brief) + '#invite');
+    $('.ch-brief').classList.remove('pulse'); void $('.ch-brief').offsetWidth; $('.ch-brief').classList.add('pulse');
+  }
+  $$('.ch-composer input').forEach(function(i){ i.addEventListener('change', update); });
+  update();
+  /* yacht chapter: island and the line from sea to airport */
+  var ymap = $('#chYachtMap');
+  if (ymap){
+    var halo = function(w, op){ return '<path d="' + ISLAND + '" fill="none" stroke="#8FA6BC" stroke-opacity="' + op + '" stroke-width="' + w + '" stroke-linejoin="round"/>'; };
+    ymap.innerHTML = halo(46, .04) + halo(28, .06) + halo(14, .09) +
+      '<path d="' + ISLAND + '" fill="#12253C" stroke="#8FA6BC" stroke-opacity=".75" stroke-width="1" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+      '<path class="xm-route" pathLength="1" d="M293.5 570.3 Q359.0 439.6 306.9 303.0"/>' +
+      '<circle cx="' + MAP.hato[0] + '" cy="' + MAP.hato[1] + '" r="6" fill="#F5F4F1"/>' +
+      '<g transform="translate(293.5 570.3)" class="ch-yacht"><path d="M-14 2 H14 L9 9 H-9 Z M0 -16 V2 M0 -14 L10 0 H0" fill="none" stroke="#E2BD62" stroke-width="1.6" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></g>' +
+      '<text x="' + (MAP.hato[0] + 10) + '" y="' + (MAP.hato[1] - 10) + '" class="f-label" style="font-size:14px">Curaçao International Airport</text>';
+  }
+  var draws = $$('#chYachtMap, .ch-finder');
+  if ('IntersectionObserver' in window && !reduce){
+    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('drawn'); io.unobserve(e.target); } }); }, {threshold: 0.35});
+    draws.forEach(function(d){ io.observe(d); });
+  } else draws.forEach(function(d){ d.classList.add('drawn'); });
+  /* film chapter: viewfinder with running timecode and aspect toggle */
+  var finder = $('.ch-finder'), tc = $('#chTC'), t0 = performance.now(), on = false;
+  function tick(now){
+    if (!on) return;
+    var f = Math.floor((now - t0) / 1000 * 25), ss = Math.floor(f / 25), fr = f % 25;
+    tc.textContent = '00:' + String(Math.floor(ss / 60) % 60).padStart(2, '0') + ':' + String(ss % 60).padStart(2, '0') + ':' + String(fr).padStart(2, '0');
+    requestAnimationFrame(tick);
+  }
+  if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ on = es[0].isIntersecting; if (on && !reduce) requestAnimationFrame(tick); }).observe(finder);
+  $$('.ch-aspect button').forEach(function(b){
+    b.addEventListener('click', function(){
+      $$('.ch-aspect button').forEach(function(x){ x.setAttribute('aria-pressed', x === b); });
+      finder.classList.toggle('scope', b.getAttribute('data-a') === 'scope');
+      $('#chFmt').textContent = b.getAttribute('data-a') === 'scope' ? '2.39 : 1' : '16 : 9';
+    });
+  });
+})();
+
+/* Operations pages: the contents list follows the section in view */
+(function(){
+  var links = $$('.lg-toc a'); if (!links.length || !('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) links.forEach(function(a){ a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id); }); }); }, {rootMargin: '-40% 0px -55% 0px'});
+  links.forEach(function(a){ var t = $(a.getAttribute('href')); if (t) io.observe(t); });
+})();
+
+/* ================= Contact page: compose a WhatsApp message ================= */
+(function(){
+  var cm = $('#ctMap');
+  if (cm){
+    var halo = function(w, op){ return '<path d="' + ISLAND + '" fill="none" stroke="#8FA6BC" stroke-opacity="' + op + '" stroke-width="' + w + '" stroke-linejoin="round"/>'; };
+    cm.innerHTML = halo(46, .04) + halo(28, .06) + halo(14, .09) + '<path d="' + ISLAND + '" fill="#12253C" stroke="#8FA6BC" stroke-opacity=".75" stroke-width="1" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+      '<circle cx="' + MAP.hato[0] + '" cy="' + MAP.hato[1] + '" r="7" fill="#E2BD62"/><circle class="ct-ping" cx="' + MAP.hato[0] + '" cy="' + MAP.hato[1] + '" r="7" fill="none" stroke="#E2BD62"/>';
+  }
+  var f = $('#waForm'); if (!f) return;
+  function compose(){
+    var topic = ($('input[name="wa-topic"]:checked') || {}).value || '', name = $('#waName').value.trim(), msg = $('#waMsg').value.trim();
+    var text = 'Hello Ocean Whisperer' + (name ? ', this is ' + name : '') + '.' + (topic ? ' I am writing about ' + topic.toLowerCase() + '.' : '') + (msg ? '\n\n' + msg : '');
+    $('#waGo').setAttribute('href', 'https://wa.me/18046470281?text=' + encodeURIComponent(text));
+    $('#waPreview').textContent = text;
+  }
+  $$('input, textarea', f).forEach(function(el){ el.addEventListener('input', compose); el.addEventListener('change', compose); });
+  compose();
+})();
+
+/* ================= Journal page: gallery with a quiet lightbox ================= */
+(function(){
+  var items = $$('.jr-grid a'); if (!items.length) return;
+  var box = $('#jrBox'), img = $('#jrImg'), count = $('#jrCount'), cur = 0, lastFocus = null;
+  function show(i){
+    cur = (i + items.length) % items.length;
+    img.src = items[cur].getAttribute('href'); img.alt = items[cur].querySelector('img').alt;
+    count.textContent = (cur + 1) + ' / ' + items.length;
+  }
+  function open(i){ lastFocus = document.activeElement; show(i); box.classList.add('open'); box.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; if (lenis) lenis.stop(); $('#jrClose').focus(); }
+  function close(){ box.classList.remove('open'); box.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; if (lenis) lenis.start(); if (lastFocus) lastFocus.focus(); }
+  items.forEach(function(a, i){ a.addEventListener('click', function(e){ e.preventDefault(); open(i); }); });
+  $('#jrClose').addEventListener('click', close);
+  $('#jrPrev').addEventListener('click', function(){ show(cur - 1); });
+  $('#jrNext').addEventListener('click', function(){ show(cur + 1); });
+  box.addEventListener('click', function(e){ if (e.target === box) close(); });
+  addEventListener('keydown', function(e){
+    if (!box.classList.contains('open')) return;
+    if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') show(cur - 1); else if (e.key === 'ArrowRight') show(cur + 1);
+  });
+  var sx = null;
+  box.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; }, {passive: true});
+  box.addEventListener('touchend', function(e){ if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1)); sx = null; });
+  /* gentle reveal as the photographs scroll into view */
+  if ('IntersectionObserver' in window && !reduce){
+    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); }, {rootMargin: '0px 0px -8% 0px'});
+    items.forEach(function(a){ io.observe(a); });
+  } else items.forEach(function(a){ a.classList.add('in'); });
+})();
+
 /* Social links: placeholders do nothing until a real URL is added */
 $$('[data-social]').forEach(function(a){
   var href = a.getAttribute('href');
@@ -643,6 +902,7 @@ $$('[data-social]').forEach(function(a){
 
 /* ================= Film ================= */
 (function(){
+  if (!$('#filmVideo')) return;
   var film = $('#journal'), vid = $('#filmVideo');
   $('#filmPlay').addEventListener('click', function(){
     var src = vid.getAttribute('data-src');
@@ -655,11 +915,33 @@ $$('[data-social]').forEach(function(a){
 
 /* ================= 7 + 8. Seat, envelope and invitation ================= */
 (function(){
+  if (!$('#inviteForm')) return;
   var form = $('#inviteForm'), stage = $('#stage'), msg = $('#formMsg');
-  var SEATS = {'Front right': 1, 'Front left': 2, 'Rear right': 3, 'Rear left': 4};
-  function seatVal(){ var s = $('input[name="seat"]:checked'); return s ? s.value : 'Front left'; }
+  /* Arriving from the Experiences page with a journey already chosen */
+  var wantedB = new URLSearchParams(location.search).get('brief');
+  if (wantedB){
+    var nb = $('#fNote'); nb.value = 'Charter brief: ' + wantedB + '. ' + nb.value.replace(/^Charter brief: [^.]*\. ?/, '');
+    msg.textContent = 'We have your charter brief. Add your details below.';
+  }
+  var wantedS = new URLSearchParams(location.search).get('seat');
+  if (wantedS){
+    $$('input[name="seat"]').forEach(function(r){ if (r.value === wantedS){ r.checked = true; r.dispatchEvent(new Event('change')); } });
+  }
+  var wantedT = new URLSearchParams(location.search).get('transfer');
+  if (wantedT){
+    var nt = $('#fNote'); nt.value = 'Transfer: ' + wantedT + '. ' + nt.value.replace(/^Transfer: [^.]*\. ?/, '');
+    msg.textContent = 'We have noted your interest in a transfer to ' + wantedT + '. Add your details below.';
+  }
+  var wanted = new URLSearchParams(location.search).get('journey');
+  if (wanted){
+    $$('input[name="journey"]').forEach(function(r){ if (r.value === wanted) r.checked = true; });
+    msg.textContent = 'We have noted your interest in ' + wanted + '. Add your details below.';
+  }
+  var SEATS = {'Front, beside the captain': 1, 'Rear right': 2, 'Rear centre': 3, 'Rear left': 4};
+  function seatVal(){ var s = $('input[name="seat"]:checked'); return s ? s.value : 'Front, beside the captain'; }
   function seatLabel(v){ return 'Seat ' + SEATS[v] + ', ' + v.toLowerCase(); }
   $$('input[name="seat"]').forEach(function(r){ r.addEventListener('change', function(){ $('#seatName').textContent = seatLabel(seatVal()); }); });
+  $('#seatName').textContent = seatLabel(seatVal());
   var info = {};
   form.addEventListener('submit', function(e){
     e.preventDefault();
