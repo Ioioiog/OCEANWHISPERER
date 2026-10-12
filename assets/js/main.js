@@ -27,10 +27,10 @@ var ROUTES = [
 ];
 var NAMES = ['Willemstad Prelude', 'Coastal Sonata', 'The Whisperer’s Hour', 'Sunset Ceremony'];
 var PHOTOS = [
-  'https://theoceanwhisperer.com/wp-content/uploads/2026/04/0282EE6F-A676-4ADA-AB41-5C977F20E14B-1024x683.jpeg',
-  'https://theoceanwhisperer.com/wp-content/uploads/2026/04/ec15587a-b2d3-43ab-bcdd-765e626b64ec-1024x683.jpg',
-  'https://theoceanwhisperer.com/wp-content/uploads/2026/04/0-2-1024x683.jpg',
-  'https://theoceanwhisperer.com/wp-content/uploads/2026/04/f98a7df9-f0f5-4bc0-bb3b-b1a110692e7d-768x1024.jpg'
+  ROOT + 'assets/img/willemstad-waterfront.jpeg',
+  ROOT + 'assets/img/coastline-aerial.jpg',
+  ROOT + 'assets/img/remote-coastline.jpg',
+  ROOT + 'assets/img/golden-sea.jpg'
 ];
 
 /* The logo as an image, for the downloadable invitation and the favicon */

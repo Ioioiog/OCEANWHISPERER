@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /book-now/
+
+Sitemap: https://theoceanwhisperer.com/sitemap.xml
