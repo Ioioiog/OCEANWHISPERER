@@ -62,7 +62,7 @@ header.nav.solid .brand .wings{width:84px}
 .wordmark{display:inline-block;padding:10px 0;font-family:var(--serif);font-size:20px;letter-spacing:.34em;margin-right:-.34em;text-decoration:none;color:inherit;white-space:nowrap}
 .enquire{justify-self:end;display:inline-block;padding:12px 0;font-size:15px;text-decoration:none;color:inherit;background:linear-gradient(currentColor,currentColor) 0 calc(100% - 8px)/100% 1px no-repeat}
 .menu-btn:focus-visible,.enquire:focus-visible{outline:1px solid var(--brass);outline-offset:6px}
-.menu{position:fixed;inset:0;z-index:80;background:var(--ink);color:var(--salt);display:grid;grid-template-rows:auto 1fr auto;padding:env(safe-area-inset-top,0px) var(--pad) calc(32px + env(safe-area-inset-bottom,0px));opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s}
+.menu{position:fixed;inset:0;z-index:80;background:var(--ink);color:var(--salt);display:grid;grid-template-rows:auto 1fr auto;padding:env(safe-area-inset-top,0px) var(--pad) calc(32px + env(safe-area-inset-bottom,0px));opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s;overflow-y:auto}
 .menu.open{opacity:1;visibility:visible}
 .menu-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:84px}
 .menu-close{all:unset;cursor:pointer;justify-self:start;display:inline-flex;align-items:center;gap:14px;min-height:44px;font-size:15px}
@@ -437,6 +437,11 @@ footer{background:var(--deep);color:var(--mist);padding:clamp(96px,10vw,150px) v
   .fields{grid-template-columns:1fr}
   .seat-wrap{grid-template-columns:1fr;gap:12px}
   .cabin-pick{max-width:300px}
+  .seat{width:15%;min-width:44px;min-height:44px}
+  .f-mark{font-size:clamp(28px,10vw,46px)}
+  .xp-index ol{scrollbar-width:thin}
+  .xp-index ol::-webkit-scrollbar{height:4px}
+  .xp-index ol::-webkit-scrollbar-thumb{background:rgba(12,24,38,.28);border-radius:2px}
   .invite{padding-block:80px}
   .form-actions{flex-direction:column-reverse;align-items:stretch}
   .form-actions .btn{width:100%}
@@ -452,6 +457,10 @@ footer{background:var(--deep);color:var(--mist);padding:clamp(96px,10vw,150px) v
   .enquire{font-size:13px}
   .menu li a{font-size:32px}
   .specs dd{font-size:22px}
+}
+/* Phones held sideways: keep the hero inside the viewport instead of 640px deep */
+@media (orientation:landscape) and (max-height:520px){
+  .hero{height:auto;min-height:100svh}
 }
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
