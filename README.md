@@ -77,5 +77,5 @@ and point the domain's DNS to GitHub Pages as described in GitHub's documentatio
   and native scrolling automatically.
 - **Reduced motion:** visitors who ask their system for reduced motion get a calm version
   without the intro, 3D flight or cloud transitions.
-- **Fonts:** Cormorant Garamond and Hanken Grotesk from Google Fonts.
+- **Fonts:** Fraunces (variable, Google Fonts) and Satoshi (Fontshare).
 - **Map:** the coastline of Curaçao and Klein Curaçao comes from OpenStreetMap data (via the MIT-licensed `@geo-maps/countries-land-100m` package), simplified to 100 m. OpenStreetMap data is © OpenStreetMap contributors under the ODbL; keep the attribution line in the footer. Routes are illustrative and drawn from real coordinates (Hato airport, Willemstad, Westpunt, Spanish Water, Klein Curaçao).

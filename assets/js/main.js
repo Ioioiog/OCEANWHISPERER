@@ -40,7 +40,7 @@ var WINGS = new Image();
   if (m) WINGS.src = m[1];
   WINGS.onload = function(){
     var c = document.createElement('canvas'); c.width = c.height = 64;
-    var g = c.getContext('2d'); g.fillStyle = '#0C1826'; g.fillRect(0, 0, 64, 64);
+    var g = c.getContext('2d'); g.fillStyle = '#0B1524'; g.fillRect(0, 0, 64, 64);
     g.drawImage(tint(WINGS, '#E2BD62'), 6, 32 - 52 * 152 / 900 / 2, 52, 52 * 152 / 900);
     var l = document.createElement('link'); l.rel = 'icon'; l.href = c.toDataURL('image/png'); document.head.appendChild(l);
   };
@@ -698,7 +698,33 @@ function maybeSuspend(){
       routes.map(function(i, k){ return '<path class="xm-route" pathLength="1" style="transition-delay:' + (k * 0.45) + 's" d="' + ROUTES[i] + '"/>'; }).join('') +
       '<circle cx="' + MAP.hato[0] + '" cy="' + MAP.hato[1] + '" r="5" fill="#F5F4F1"/>';
   }
-  var heroMap = $('#xpHeroMap'); if (heroMap) mapSvg(heroMap, [0, 1, 2, 3]);
+  var heroMap = $('#xpHeroMap');
+  if (heroMap){
+    mapSvg(heroMap, [0, 1, 2, 3]);
+    if (!reduce){
+      /* Cycle the routes one at a time: draw ~2.4s, hold, erase along the flight direction, next follows */
+      var hRoutes = $$('.xm-route', heroMap), hCur = -1, hShown = hRoutes.map(function(){ return false; });
+      hRoutes.forEach(function(p){ p.style.strokeDashoffset = '1'; });
+      heroMap.insertAdjacentHTML('beforeend', '<text id="xpHeroName" x="307" y="336" text-anchor="middle" fill="#B9C4CE" font-size="19" letter-spacing="3" font-family="Fraunces, Georgia, serif" opacity=".85"></text>');
+      var hTimer = null;
+      var heroStep = function(){
+        hCur = (hCur + 1) % hRoutes.length;
+        hRoutes.forEach(function(p, k){
+          p.style.transitionDelay = '0s';
+          if (k === hCur){ p.style.strokeDashoffset = '0'; hShown[k] = true; }
+          else p.style.strokeDashoffset = hShown[k] ? '-1' : '1';
+        });
+        var nm = $('#xpHeroName'); if (nm) nm.textContent = NAMES[hCur].toUpperCase();
+      };
+      setTimeout(heroStep, 1400);
+      if ('IntersectionObserver' in window){
+        new IntersectionObserver(function(es){
+          if (es[0].isIntersecting){ if (!hTimer) hTimer = setInterval(heroStep, 6000); }
+          else if (hTimer){ clearInterval(hTimer); hTimer = null; }
+        }, {threshold: .2}).observe(heroMap);
+      } else hTimer = setInterval(heroStep, 6000);
+    }
+  }
   $$('.xp-map').forEach(function(svg){ mapSvg(svg, [+svg.getAttribute('data-route')]); });
   /* draw a route when its map comes into view */
   var draw = function(el){ el.classList.add('drawn'); };
@@ -973,21 +999,21 @@ $$('[data-social]').forEach(function(a){
   $('#dlCard').addEventListener('click', function(){
     var go = function(){
       var c = document.createElement('canvas'); c.width = 1200; c.height = 1600;
-      var g = c.getContext('2d'), serif = '"Cormorant Garamond", Georgia, serif', sans = '"Hanken Grotesk", Arial, sans-serif';
+      var g = c.getContext('2d'), serif = '"Fraunces", Georgia, serif', sans = '"Satoshi", Arial, sans-serif';
       g.fillStyle = '#F5F4F1'; g.fillRect(0, 0, 1200, 1600);
       g.strokeStyle = '#CFC5B3'; g.lineWidth = 2; g.strokeRect(48, 48, 1104, 1504);
       if (WINGS.complete && WINGS.naturalWidth) g.drawImage(tint(WINGS, '#B8892E'), 120, 104, 260, 260 * 152 / 900);
       g.fillStyle = '#B8892E'; g.textBaseline = 'alphabetic';
       g.font = '400 44px ' + serif; tracked(g, 'OCEAN WHISPERER', 120, 230, 14);
-      g.fillStyle = '#0C1826';
+      g.fillStyle = '#0B1524';
       g.fillStyle = '#7A5D31'; g.font = '300 32px ' + sans; g.fillText('Inaugural season, Curaçao', 120, 286);
       g.fillStyle = '#5C636B'; g.font = '300 32px ' + sans; g.fillText('Invitation no.', 120, 760);
-      g.fillStyle = '#0C1826'; g.font = '300 300px ' + serif; g.fillText(info.no || '0__', 108, 1020);
+      g.fillStyle = '#0B1524'; g.font = '300 300px ' + serif; g.fillText(info.no || '0__', 108, 1020);
       g.font = '400 64px ' + serif; g.fillText('Reserved for ' + (info.name || 'you'), 120, 1120);
       g.fillStyle = '#CFC5B3'; g.fillRect(120, 1250, 960, 2);
       g.fillStyle = '#5C636B'; g.font = '300 32px ' + sans;
       g.fillText('Journey', 120, 1320); g.fillText('Seat', 120, 1375); g.fillText('Preferred date', 120, 1430);
-      g.fillStyle = '#0C1826'; g.font = '500 32px ' + sans;
+      g.fillStyle = '#0B1524'; g.font = '500 32px ' + sans;
       g.fillText(info.journey || '', 380, 1320); g.fillText(info.seat ? SEATS[info.seat] + ', ' + info.seat.toLowerCase() : '', 380, 1375);
       var dt = info.date || ''; while (dt.length > 3 && g.measureText(dt).width > 700) dt = dt.slice(0, -2); if (dt !== (info.date || '')) dt += '…';
       g.fillText(dt, 380, 1430);
@@ -998,8 +1024,56 @@ $$('[data-social]').forEach(function(a){
       });
     };
     if (document.fonts && document.fonts.load){
-      Promise.all([document.fonts.load('300 300px "Cormorant Garamond"'), document.fonts.load('300 32px "Hanken Grotesk"')]).then(go, go);
+      Promise.all([document.fonts.load('300 300px "Fraunces"'), document.fonts.load('400 32px "Satoshi"')]).then(go, go);
     } else go();
+  });
+})();
+
+/* ================= Scroll reveals ================= */
+(function(){
+  if (reduce || !('IntersectionObserver' in window)) return;
+  var sel = [
+    '.statement p', '.j-intro', '.j-step', '.arrival-text',
+    '.a-grid > div', '.a-img', '.canopy-sec', '.ritual li',
+    '.c-side', '.c-item', '.film-foot',
+    '.founders .lead', '.f-grid > div',
+    '.invite-head', '.i-main',
+    '.xp-hero-text', '.xp-fig', '.xp-text', '.xp-steps li', '.xp-cta .inner',
+    '.tr-hero-text', '.tr-row', '.tr-sticky', '.tr-steps li', '.tr-sea .inner > *',
+    '.ac-hero-text', '.ac-figure', '.ac-panels', '.ac-cabin-grid > *', '.ac-comfort-list li', '.ac-safety-grid > *', '.ac-node',
+    '.ch-hero .inner > *', '.ch-personal .inner > *', '.ch-corporate .inner > *', '.ch-yacht-sec .inner > *', '.ch-film-head', '.ch-finder', '.ch-close .inner',
+    '.ct-hero .inner', '.ct-card', '.ct-write .inner > *', '.ct-join .inner',
+    '.lg-hero .inner', '.lg-toc', '.lg-sec', '.lg-quote', '.lg-related', '.lg-more .inner',
+    '.jr-hero .inner', '.jr-head', '.jr-notes .inner',
+    '.f-brand', '.social', '.f-col'
+  ].join(',');
+  var els = $$(sel);
+  if (!els.length) return;
+  document.body.classList.add('rv');
+  els.forEach(function(el){ el.classList.add('rv-i'); });
+  var io = new IntersectionObserver(function(entries){
+    var d = 0;
+    entries.forEach(function(en){
+      if (!en.isIntersecting) return;
+      var el = en.target;
+      el.style.transitionDelay = (d += 80) + 'ms';
+      el.classList.add('in');
+      /* once it has landed, hand the element back to its own transitions */
+      setTimeout(function(){ el.classList.remove('rv-i', 'in'); el.style.transitionDelay = ''; }, 1350);
+      io.unobserve(el);
+    });
+  }, {rootMargin: '0px 0px -10% 0px', threshold: 0.05});
+  els.forEach(function(el){ io.observe(el); });
+})();
+
+/* Floating sound / WhatsApp step aside while scrolling down, return on the way up */
+(function(){
+  var lastY = scrollY;
+  scrollSubs.push(function(){
+    var y = scrollY;
+    if (y > 560 && y > lastY + 4) document.body.classList.add('floats-away');
+    else if (y < lastY - 4 || y <= 560) document.body.classList.remove('floats-away');
+    lastY = y;
   });
 })();
 
