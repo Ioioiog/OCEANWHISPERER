@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050B14">
 <title>Ocean Whisperer — cinematic concept</title>
-<meta name="description" content="Private helicopter journeys above Curaçao aboard a Robinson R66 turbine. Four guests at a time. First season late 2026.">
+<meta name="description" content="Private helicopter journeys above Curaçao aboard a Robinson R66 turbine. Four guests at a time. First season in the first quarter of 2027.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..500&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://api.fontshare.com">
 <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css?v=202610152015">
+<link rel="stylesheet" href="assets/css/style.css?v=20261015j">
 <style>
 /* ---------- concept layer: continuous dark flight ---------- */
 body{background:var(--deep);color:var(--salt)}
@@ -440,18 +440,16 @@ figure,dl,dd{margin:0}
         <div class="field"><label for="fName">Name <span class="req" aria-hidden="true">*</span></label><input id="fName" name="name" autocomplete="name" enterkeyhint="next" required aria-required="true"></div>
         <div class="field"><label for="fEmail">Email <span class="req" aria-hidden="true">*</span></label><input id="fEmail" name="email" type="email" autocomplete="email" enterkeyhint="next" required aria-required="true"></div>
         <div class="field"><label for="fDate">Preferred date or window <span class="req" aria-hidden="true">*</span></label><input id="fDate" name="preferred_date" placeholder="A date, or a range such as 10–20 March 2027" enterkeyhint="next" required aria-required="true"></div>
-        <div class="field"><label for="fTravel">Anticipated travel window</label><input id="fTravel" name="travel_window" placeholder="When you expect to be in Curaçao" enterkeyhint="next"></div>
-      </div>
-      <fieldset>
-        <legend class="legend">Journey</legend>
-        <div class="chips">
-          <input type="radio" name="journey" id="jj0" value="Willemstad Prelude"><label for="jj0">Willemstad Prelude</label>
-          <input type="radio" name="journey" id="jj1" value="Coastal Sonata"><label for="jj1">Coastal Sonata</label>
-          <input type="radio" name="journey" id="jj2" value="The Whisperer’s Hour"><label for="jj2">The Whisperer’s Hour</label>
-          <input type="radio" name="journey" id="jj3" value="Sunset Ceremony"><label for="jj3">Sunset Ceremony</label>
-          <input type="radio" name="journey" id="jj4" value="Not decided yet" checked><label for="jj4">Not decided yet</label>
+        <div class="field"><label for="fJourney">Journey</label>
+          <select id="fJourney" name="journey">
+            <option value="Not decided yet" selected>Not decided yet</option>
+            <option value="Willemstad Prelude">Willemstad Prelude</option>
+            <option value="Coastal Sonata">Coastal Sonata</option>
+            <option value="The Whisperer’s Hour">The Whisperer’s Hour</option>
+            <option value="Sunset Ceremony">Sunset Ceremony</option>
+          </select>
         </div>
-      </fieldset>
+      </div>
       <fieldset>
         <legend class="legend">Your seat</legend>
         <div class="seat-wrap">
@@ -480,7 +478,7 @@ figure,dl,dd{margin:0}
       </div>
       <div class="agree">
         <input type="checkbox" id="fAgree" name="understood" required aria-required="true">
-        <label for="fAgree">I understand Ocean Whisperer launches in late 2026 and this is not a reservation. <span class="req" aria-hidden="true">*</span></label>
+        <label for="fAgree">I understand Ocean Whisperer launches in the first quarter of 2027 and this is not a reservation. <span class="req" aria-hidden="true">*</span></label>
       </div>
       <div class="form-actions">
         <p class="form-msg" id="formMsg" aria-live="polite">Fields marked * are required. We reply personally, never with a newsletter.</p>
@@ -551,7 +549,7 @@ figure,dl,dd{margin:0}
       <div class="f-col">
         <h4>Departures</h4>
         <p>Curaçao International Airport<br>Willemstad, Curaçao</p>
-        <p class="f-muted">First flights late 2026</p>
+        <p class="f-muted">First flights in the first quarter of 2027</p>
       </div>
       <nav class="f-col" aria-labelledby="fc4">
         <h4 id="fc4">Operations</h4>
@@ -571,7 +569,7 @@ figure,dl,dd{margin:0}
 <div class="island-bar"><span class="chap" id="chap">ARRIVAL</span><span class="dot">·</span><span>CURAÇAO</span><span class="dot">·</span><span>28°C</span><span class="dot">·</span><span>SUNSET <b id="sunT" style="font-weight:400">--:--</b></span><span class="dot">·</span><span>12°11′N 68°58′W</span></div>
 
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-<script src="assets/js/main.js?v=202610152015"></script>
+<script src="assets/js/main.js?v=20261015j"></script>
 <script>
 (function(){
 'use strict';

@@ -673,21 +673,50 @@ function maybeSuspend(){
   apply();
 })();
 
-/* ================= Private charter: picture follows the line you look at; enquire pre-fills the form ================= */
+/* ================= Private charter: horizontal strip progress; enquire pre-fills the form ================= */
 (function(){
-  var items = $$('.c-item'), pics = $$('.c-visual img'), cur = 0;
-  function show(i){
-    if (i === cur) return; cur = i;
-    items.forEach(function(it, k){ it.classList.toggle('active', k === i); });
-    pics.forEach(function(p, k){ p.classList.toggle('on', k === i); });
-  }
-  items.forEach(function(it, i){
-    it.addEventListener('pointerenter', function(){ show(i); });
-    it.addEventListener('focusin', function(){ show(i); });
-  });
-  if ('IntersectionObserver' in window){
-    var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) show(+e.target.getAttribute('data-i')); }); }, {rootMargin: '-45% 0px -45% 0px'});
-    items.forEach(function(it){ io.observe(it); });
+  var strip = $('#cStrip'), prog = $('#cProg');
+  if (strip && prog){
+    var prev = $('#cPrev'), next = $('#cNext');
+    var onStrip = function(){
+      var max = strip.scrollWidth - strip.clientWidth;
+      var pr = max > 0 ? strip.scrollLeft / max : 1;
+      prog.style.width = (25 + pr * 75).toFixed(1) + '%';
+      if (prev) prev.disabled = strip.scrollLeft <= 2;
+      if (next) next.disabled = strip.scrollLeft >= max - 2;
+    };
+    var step = function(){ var it = strip.querySelector('.c-item'); return it ? it.offsetWidth + 24 : 320; };
+    if (prev) prev.addEventListener('click', function(){ strip.scrollBy({left: -step(), behavior: 'smooth'}); });
+    if (next) next.addEventListener('click', function(){ strip.scrollBy({left: step(), behavior: 'smooth'}); });
+    strip.addEventListener('wheel', function(e){
+      var max = strip.scrollWidth - strip.clientWidth;
+      if (max <= 0 || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      var canFwd = strip.scrollLeft < max - 2, canBack = strip.scrollLeft > 2;
+      if ((e.deltaY > 0 && canFwd) || (e.deltaY < 0 && canBack)){
+        e.preventDefault();
+        strip.scrollLeft += e.deltaY;
+      }
+    }, {passive: false});
+    var dragX = 0, dragL = 0, dragging = false, moved = 0;
+    strip.addEventListener('dragstart', function(e){ e.preventDefault(); });
+    strip.addEventListener('pointerdown', function(e){
+      if (e.pointerType === 'touch') return;
+      dragging = true; moved = 0; dragX = e.clientX; dragL = strip.scrollLeft;
+      strip.classList.add('grabbing');
+      strip.setPointerCapture(e.pointerId);
+    });
+    strip.addEventListener('pointermove', function(e){
+      if (!dragging) return;
+      moved = Math.max(moved, Math.abs(e.clientX - dragX));
+      strip.scrollLeft = dragL - (e.clientX - dragX);
+    });
+    var endDrag = function(){ dragging = false; strip.classList.remove('grabbing'); };
+    strip.addEventListener('pointerup', endDrag);
+    strip.addEventListener('pointercancel', endDrag);
+    strip.addEventListener('click', function(e){ if (moved > 6){ e.preventDefault(); e.stopPropagation(); } }, true);
+    strip.addEventListener('scroll', onStrip, {passive: true});
+    addEventListener('resize', onStrip);
+    onStrip();
   }
   $$('.c-enquire[data-charter]').forEach(function(a){
     a.addEventListener('click', function(e){
@@ -973,9 +1002,9 @@ $$('[data-social]').forEach(function(a){
     var nt = $('#fNote'); nt.value = 'Transfer: ' + wantedT + '. ' + nt.value.replace(/^Transfer: [^.]*\. ?/, '');
     msg.textContent = 'We have noted your interest in a transfer to ' + wantedT + '. Add your details below.';
   }
-  var wanted = new URLSearchParams(location.search).get('journey');
-  if (wanted){
-    $$('input[name="journey"]').forEach(function(r){ if (r.value === wanted) r.checked = true; });
+  var wanted = new URLSearchParams(location.search).get('journey'), jSel = $('#fJourney');
+  if (wanted && jSel){
+    for (var oi = 0; oi < jSel.options.length; oi++) if (jSel.options[oi].value === wanted) jSel.value = wanted;
     msg.textContent = 'We have noted your interest in ' + wanted + '. Add your details below.';
   }
   var SEATS = {'Front, beside the captain': 1, 'Rear right': 2, 'Rear centre': 3, 'Rear left': 4};
@@ -994,7 +1023,7 @@ $$('[data-social]').forEach(function(a){
     if (!date.value.trim()) return stop(date, 'Add a preferred date or window, even an approximate one.');
     if (!agree.checked) return stop(agree, 'Please confirm you understand this is not yet a reservation.');
     msg.textContent = 'Fields marked * are required. We reply personally, never with a newsletter.';
-    info = {date: date.value.trim(), travel: $('#fTravel').value.trim(), note: $('#fNote').value.trim(), name: name.value.trim(), journey: ($('input[name="journey"]:checked') || {}).value || 'Not decided yet', seat: seatVal(), no: '0' + String(10 + Math.floor(Math.random() * 90))};
+    info = {date: date.value.trim(), note: $('#fNote').value.trim(), name: name.value.trim(), journey: jSel ? jSel.value : 'Not decided yet', seat: seatVal(), no: '0' + String(10 + Math.floor(Math.random() * 90))};
     $('#cNo').textContent = info.no; $('#cFor').textContent = 'Reserved for ' + info.name;
     $('#cDate').textContent = info.date; $('#cJourney').textContent = info.journey; $('#cSeat').textContent = SEATS[info.seat] + ', ' + info.seat.toLowerCase();
     form.style.display = 'none';
@@ -1005,6 +1034,18 @@ $$('[data-social]').forEach(function(a){
     steps.forEach(function(st){ setTimeout(function(){ stage.classList.add(st[1]); if (st[1] === 's5') $('#card').focus({preventScroll: true}); }, st[0]); });
   });
   $('#editCard').addEventListener('click', function(){ stage.className = 'stage'; form.style.display = ''; $('#fName').focus(); });
+
+  /* ?preview=env shows the open envelope with the card pulled out; ?preview=card the final card */
+  var pv = new URLSearchParams(location.search).get('preview');
+  if (pv === 'env' || pv === 'card'){
+    $('#cNo').textContent = '047'; $('#cFor').textContent = 'Reserved for Alexandra R.';
+    $('#cDate').textContent = '12–18 March 2027'; $('#cJourney').textContent = 'The Whisperer’s Hour';
+    $('#cSeat').textContent = SEATS['Front, beside the captain'] + ', front, beside the captain';
+    form.style.display = 'none';
+    stage.className = 'stage show' + (pv === 'card' ? ' s1 s2 s3 s4 s5' : ' s1 s2 s3');
+    var inv = $('#invite');
+    setTimeout(function(){ if (lenis) lenis.scrollTo(inv, {duration: 1}); else inv.scrollIntoView(); }, 300);
+  }
 
   function tracked(g, text, x, y, sp, align){
     var w = 0, i; for (i = 0; i < text.length; i++) w += g.measureText(text[i]).width + sp; w -= sp;
@@ -1048,9 +1089,9 @@ $$('[data-social]').forEach(function(a){
 (function(){
   if (reduce || !('IntersectionObserver' in window)) return;
   var sel = [
-    '.statement p', '.j-intro', '.j-step', '.arrival-text',
+    '.j-intro', '.j-step', '.arrival-text',
     '.a-grid > div', '.a-img', '.canopy-sec', '.ritual li',
-    '.c-side', '.c-item', '.film-foot',
+    '.c-item', '.film-foot',
     '.founders .lead', '.f-grid > div',
     '.invite-head', '.i-main',
     '.xp-hero-text', '.xp-fig', '.xp-text', '.xp-steps li', '.xp-cta .inner',
@@ -1092,6 +1133,51 @@ $$('[data-social]').forEach(function(a){
   });
 })();
 
+/* ================= Statement: the manifesto illuminates word by word ================= */
+(function(){
+  var sec = $('.statement'), txt = $('#stText'), note = $('#stNote');
+  if (!sec || !txt) return;
+  var words = [], frag = document.createDocumentFragment();
+  Array.prototype.slice.call(txt.childNodes).forEach(function(n){
+    if (n.nodeType === 3){
+      n.textContent.split(/(\s+)/).forEach(function(tk){
+        if (!tk) return;
+        if (/^\s+$/.test(tk)){ frag.appendChild(document.createTextNode(tk)); }
+        else { var s = document.createElement('span'); s.className = 'w'; s.textContent = tk; frag.appendChild(s); words.push(s); }
+      });
+    } else if (n.nodeType === 1){
+      var s = document.createElement('span'); s.className = 'w'; s.appendChild(n.cloneNode(true)); frag.appendChild(s); words.push(s);
+    }
+  });
+  txt.innerHTML = ''; txt.appendChild(frag);
+  var N = words.length;
+  var env = $('#stEnv'), estage = $('#stStage'), envPlayed = false;
+  if (reduce){
+    words.forEach(function(w){ w.style.opacity = '1'; });
+    if (note) note.style.opacity = '1';
+    return;
+  }
+  scrollSubs.push(function(){
+    var r = sec.getBoundingClientRect(), span = r.height - innerHeight;
+    var p = span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 1;
+    var wp = Math.min(1, p / .42);
+    for (var i = 0; i < N; i++){
+      var f = Math.min(1, Math.max(0, (wp * (N + 3) - i) / 3));
+      words[i].style.opacity = (.16 + .84 * f).toFixed(2);
+    }
+    if (note) note.style.opacity = String(Math.min(1, Math.max(0, (p - .4) * 9)));
+    if (env && estage){
+      env.classList.toggle('on', p > .55);
+      if (!envPlayed && p > .62){
+        envPlayed = true;
+        [[400, 's1'], [1100, 's2'], [2000, 's3'], [3300, 's4'], [4000, 's5']].forEach(function(st){
+          setTimeout(function(){ estage.classList.add(st[1]); }, st[0]);
+        });
+      }
+    }
+  });
+})();
+
 /* ================= Route thread: the route continues down the page ================= */
 (function(){
   var NS = 'http://www.w3.org/2000/svg';
@@ -1111,6 +1197,18 @@ $$('[data-social]').forEach(function(a){
   var run = svg.querySelector('.thread-run');
   var L = run.getTotalLength();
   run.style.strokeDashoffset = '1';
+  /* stations: dots on .ritual items land on the thread, wherever it curves */
+  var stations = $$('.ritual li');
+  var tSamples = [];
+  for (var si = 0; si <= 40; si++){ var sq = run.getPointAtLength(L * si / 40); tSamples.push({y: sq.y, x: sq.x}); }
+  function threadX(vpy){
+    var vy = vpy / innerHeight * 1000;
+    for (var k = 0; k < tSamples.length - 1; k++){
+      var a = tSamples[k], b = tSamples[k + 1];
+      if (vy <= b.y){ var f = b.y > a.y ? (vy - a.y) / (b.y - a.y) : 0; return a.x + (b.x - a.x) * f; }
+    }
+    return tSamples[40].x;
+  }
   /* rotor spins with scroll speed, spools down to idle when the page is still */
   var rotor = heli.firstChild, rotA = 0, rotV = 0, rotY = scrollY;
   if (!reduce){
@@ -1127,12 +1225,18 @@ $$('[data-social]').forEach(function(a){
   scrollSubs.push(function(){
     var max = document.documentElement.scrollHeight - innerHeight;
     var p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    var r = svg.getBoundingClientRect();
     run.style.strokeDashoffset = String(1 - p);
     var pt = run.getPointAtLength(L * p);
     var pa = run.getPointAtLength(Math.max(0, L * p - 3)), pb = run.getPointAtLength(Math.min(L, L * p + 3));
-    var r = svg.getBoundingClientRect();
     var ang = Math.atan2((pb.y - pa.y) * r.height / 1000, (pb.x - pa.x) * r.width / 16) * 180 / Math.PI;
     heli.style.transform = 'translate(' + (r.left + pt.x * r.width / 16) + 'px,' + (r.top + pt.y * r.height / 1000) + 'px) rotate(' + ang.toFixed(1) + 'deg)';
+    for (var m = 0; m < stations.length; m++){
+      var mm = stations[m].getBoundingClientRect();
+      if (mm.bottom < 0 || mm.top > innerHeight) continue;
+      var x = r.left + threadX(mm.top + 23) * r.width / 16;
+      stations[m].style.setProperty('--dx', (x - mm.left - 4.5).toFixed(1) + 'px');
+    }
   });
 })();
 
