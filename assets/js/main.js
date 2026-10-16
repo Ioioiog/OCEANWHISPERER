@@ -59,11 +59,11 @@ addEventListener('resize', function(){ requestAnimationFrame(onScroll); });
 
 /* ================= 1. Live light over Curaçao ================= */
 var PALETTES = {
-  night:  {at: 'at night', name: 'night',       haze: '#0E1A2B', sky: '#050B14', land: '#0B1726', line: '#56748F', sea: '#070F1B', seaLine: '#2E4A66', route: '#D9BF8C', stars: 1},
-  dawn:   {at: 'at dawn', name: 'dawn',        haze: '#5A4B62', sky: '#121A2C', land: '#1D2638', line: '#C9BCCB', sea: '#151D30', seaLine: '#6E6683', route: '#F0C9A0', stars: .25},
-  day:    {at: 'in daylight', name: 'daylight',    haze: '#24566E', sky: '#081E30', land: '#123F57', line: '#BCDCE6', sea: '#0A2F45', seaLine: '#3F7F96', route: '#F3DCA6', stars: 0},
-  golden: {at: 'at golden hour', name: 'golden hour', haze: '#6E4527', sky: '#16223A', land: '#26334A', line: '#F0CFA2', sea: '#1A2740', seaLine: '#8E6C57', route: '#F7CD85', stars: 0},
-  dusk:   {at: 'at dusk', name: 'dusk',        haze: '#3E3350', sky: '#0B1424', land: '#141F33', line: '#A3A7C9', sea: '#0E1829', seaLine: '#48486C', route: '#D9BF8C', stars: .6}
+  night:  {at: 'at night', name: 'night',       haze: '#0E1A2B', sky: '#050B14', land: '#1E3455', line: '#6E8FAF', sea: '#070F1B', seaLine: '#2E4A66', route: '#D9BF8C', stars: 1},
+  dawn:   {at: 'at dawn', name: 'dawn',        haze: '#5A4B62', sky: '#121A2C', land: '#3B4C72', line: '#C9BCCB', sea: '#151D30', seaLine: '#6E6683', route: '#F0C9A0', stars: .25},
+  day:    {at: 'in daylight', name: 'daylight',    haze: '#24566E', sky: '#081E30', land: '#2B6A8E', line: '#BCDCE6', sea: '#0A2F45', seaLine: '#3F7F96', route: '#F3DCA6', stars: 0},
+  golden: {at: 'at golden hour', name: 'golden hour', haze: '#6E4527', sky: '#16223A', land: '#4A5F8C', line: '#F0CFA2', sea: '#1A2740', seaLine: '#8E6C57', route: '#F7CD85', stars: 0},
+  dusk:   {at: 'at dusk', name: 'dusk',        haze: '#3E3350', sky: '#0B1424', land: '#2E4068', line: '#A3A7C9', sea: '#0E1829', seaLine: '#48486C', route: '#D9BF8C', stars: .6}
 };
 function sunHour(rising){
   var rad = Math.PI / 180, lat = 12.11, lng = -68.93, d = new Date(), y = d.getUTCFullYear();
@@ -180,7 +180,7 @@ var heroStage = $('#heroStage'), heroSvg = $('#heroSvg');
 function frameSvg(){
   if (!heroSvg) return;
   heroSvg.setAttribute('viewBox', phoneMQ.matches ? '470 0 660 520' : '0 0 1600 1000');
-  heroSvg.setAttribute('preserveAspectRatio', phoneMQ.matches ? 'xMidYMid meet' : 'xMidYMid slice');
+  heroSvg.setAttribute('preserveAspectRatio', phoneMQ.matches ? 'xMidYMid meet' : 'xMidYMin slice');
 }
 frameSvg();
 (phoneMQ.addEventListener ? phoneMQ.addEventListener('change', frameSvg) : phoneMQ.addListener(frameSvg));
@@ -230,7 +230,7 @@ frameSvg();
   function height(x, z){
     if (x < minX - 5.5 || x > maxX + 5.5 || z < minZ - 5.5 || z > maxZ + 5.5) return -0.62;
     var d = edgeDist(x, z);
-    if (inside(x, z)) return smooth(0, 1.6, d) * (0.3 + 0.55 * noise(x, z)) * (0.55 + 1.9 * bump(x, z, -13.9, -9.8, 42) + 0.7 * bump(x, z, 10.3, 9.5, 5)) * 0.95;
+    if (inside(x, z)) return smooth(0, 1.6, d) * (0.3 + 0.55 * noise(x, z)) * (0.55 + 1.9 * bump(x, z, -13.9, -9.8, 42) + 0.7 * bump(x, z, 10.3, 9.5, 5)) * 1.45;
     return -Math.min(d, 5) / 5 * 0.6 - 0.02;
   }
 
@@ -239,6 +239,27 @@ frameSvg();
   var pos = geo.attributes.position;
   var GX = low ? 150 : 210, GZ = low ? 64 : 90, gx0 = minX - 6, gz0 = minZ - 6, gdx = (maxX - minX + 12) / GX, gdz = (maxZ - minZ + 12) / GZ, grid = new Float32Array((GX + 1) * (GZ + 1));
   for (var gz = 0; gz <= GZ; gz++) for (var gxx = 0; gxx <= GX; gxx++) grid[gz * (GX + 1) + gxx] = height(gx0 + gxx * gdx, gz0 + gz * gdz);
+  /* Enclosed water (harbours/bays ringed by land) -> shallow lagoon.
+     Mask from height sign; 8 rays march the mask — cells ringed by land rise to -0.045. */
+  (function(){
+    var W = GX + 1, H = GZ + 1, land = new Uint8Array(W * H);
+    for (var j = 0; j < W * H; j++) land[j] = grid[j] > -0.015 ? 1 : 0;
+    for (var y = 0; y <= GZ; y++) for (var x = 0; x <= GX; x++){
+      var i = y * W + x;
+      if (land[i]) continue;
+      var hit = 0;
+      for (var k = 0; k < 8; k++){
+        var a = k * 0.7853982, dx = Math.cos(a), dz = Math.sin(a);
+        for (var t = 1; t <= 40; t++){
+          var rx = Math.round(x + dx * t), rz = Math.round(y + dz * t);
+          if (rx < 0 || rz < 0 || rx > GX || rz > GZ) break;
+          if (land[rz * W + rx]){ hit++; break; }
+        }
+      }
+      var raise = smooth(0.35, 0.7, hit / 8);
+      if (raise > 0) grid[i] = lerp(grid[i], -0.02, raise);
+    }
+  })();
   function gridH(x, z){
     var fx = (x - gx0) / gdx, fz = (z - gz0) / gdz;
     if (fx < 0 || fz < 0 || fx >= GX || fz >= GZ) return -0.62;
@@ -250,7 +271,7 @@ frameSvg();
   var uni = {
     uLand: {value: new THREE.Color()}, uLine: {value: new THREE.Color()}, uSea: {value: new THREE.Color()},
     uSeaLine: {value: new THREE.Color()}, uFog: {value: new THREE.Color()},
-    uNear: {value: 42}, uFar: {value: 115}, uTime: {value: 0}
+    uNear: {value: 62}, uFar: {value: 135}, uTime: {value: 0}
   };
   var mat = new THREE.ShaderMaterial({
     extensions: {derivatives: true}, uniforms: uni,
@@ -260,14 +281,30 @@ frameSvg();
       'varying float vH; varying vec3 vW; varying float vD;\n' +
       'float band(float v, float w){ float f = abs(fract(v - 0.5) - 0.5); return 1.0 - smoothstep(0.0, fwidth(v) * w, f); }\n' +
       'void main(){ vec3 col;\n' +
-      ' if (vH > 0.0){ col = mix(uLand, uLine, band(vH * 7.0, 1.2) * 0.5); col = mix(col, uLine, (1.0 - smoothstep(0.0, 0.05, vH)) * 0.9); }\n' +
+      ' if (vH > 0.0){ col = mix(uLand, uLine, band(vH * 7.0, 1.2) * 0.62); col = mix(col, uLine, clamp(vH * 0.14, 0.0, 0.3) * 0.55); col = mix(col, uLine, (1.0 - smoothstep(0.0, 0.05, vH)) * 0.9); }\n' +
       ' else { float depth = -vH; float rings = band(depth * 9.0, 1.1) * (1.0 - smoothstep(0.1, 0.6, depth));\n' +
       '   col = mix(uSea, uSeaLine, rings * 0.45);\n' +
+      '   col = mix(col, uSeaLine, (1.0 - smoothstep(0.01, 0.35, depth)) * 0.62);\n' +
       '   col = mix(col, uSeaLine, band(vW.z * 0.9 + sin(vW.x * 0.25 + uTime * 0.3) * 0.8, 1.0) * 0.06); }\n' +
       ' col = mix(col, uFog, smoothstep(uNear, uFar, vD));\n' +
       ' gl_FragColor = vec4(col, 1.0); }'
   });
   scene.add(new THREE.Mesh(geo, mat));
+
+  /* The real coastline drawn on the terrain — same outline as the charts, unaffected by haze */
+  var coastPts = [];
+  samplePath(ISLAND_MAIN, 1).forEach(function(p){
+    var cx = (p[0] - CX) * K, cz = (p[1] - CY) * K;
+    coastPts.push(new THREE.Vector3(cx, Math.max(gridH(cx, cz), 0) + 0.05, cz));
+  });
+  var coastMat = new THREE.MeshBasicMaterial({color: 0xffffff, transparent: true, opacity: .8});
+  scene.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(coastPts, true, 'centripetal'), 360, 0.018, 5, true), coastMat));
+  var kleinPts = [];
+  samplePath(ISLAND_KLEIN, 1).forEach(function(p){
+    var cx = (p[0] - CX) * K, cz = (p[1] - CY) * K;
+    kleinPts.push(new THREE.Vector3(cx, Math.max(gridH(cx, cz), 0) + 0.05, cz));
+  });
+  scene.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(kleinPts, true, 'centripetal'), 60, 0.018, 5, true), coastMat));
 
   /* Sunset Ceremony route, floating above the terrain */
   var rp = samplePath(ROUTES[3], 40), rpts = [];
@@ -307,7 +344,7 @@ frameSvg();
   function paint(p){
     uni.uLand.value.set(p.land); uni.uLine.value.set(p.line); uni.uSea.value.set(p.sea);
     uni.uSeaLine.value.set(p.seaLine); uni.uFog.value.set(p.haze);
-    tubeMat.color.set(p.route); starMat.opacity = p.stars * 0.85;
+    tubeMat.color.set(p.route); coastMat.color.set(p.line); starMat.opacity = p.stars * 0.85;
   }
   paint(PAL); lightSubs.push(paint);
 
