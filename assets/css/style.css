@@ -134,6 +134,21 @@ header.nav.solid .brand .wings{width:84px}
 .wa-float:hover{background:var(--gold);color:var(--deep);border-color:var(--gold);transform:translateY(-2px)}
 /* out of the way while reading downwards; back on the first flick up */
 .floats-away .sound,.floats-away .wa-float{transform:translateY(180%);opacity:0;pointer-events:none}
+
+/* ---------- Route thread: the journey continues down the page ---------- */
+.thread{position:fixed;left:max(4px,calc(var(--pad)*.32));top:0;width:24px;height:100vh;height:100svh;z-index:45;pointer-events:none}
+.thread path{fill:none;vector-effect:non-scaling-stroke}
+.thread-base{stroke:var(--brass-light);stroke-opacity:.15;stroke-dasharray:1.5 5}
+.thread-run{stroke:var(--gold);stroke-opacity:.6;stroke-width:1.2;stroke-linecap:round;stroke-dasharray:1}
+.thread-glow{fill:var(--gold);opacity:.28}
+.thread-dot{fill:var(--gold)}
+.thread-heli{position:fixed;left:0;top:0;z-index:46;width:0;height:0;pointer-events:none}
+.thread-heli::before{content:"";position:absolute;left:-6px;top:-6px;width:12px;height:12px;border-radius:50%;background:var(--gold);opacity:.22;filter:blur(2px)}
+.thread-heli i{position:absolute;left:-1.5px;top:-1.5px;width:3px;height:3px;border-radius:50%;background:var(--gold);display:block}
+.thread-heli i::before,.thread-heli i::after{content:"";position:absolute;left:-7.5px;top:.75px;width:18px;height:1.5px;border-radius:1px;background:linear-gradient(90deg,transparent,var(--gold) 20%,var(--gold) 80%,transparent)}
+.thread-heli i::after{transform:rotate(90deg)}
+.thread-heli b{position:absolute;left:-11px;top:-.5px;width:9px;height:1px;border-radius:1px;background:var(--gold);opacity:.75}
+.thread-heli b::before{content:"";position:absolute;left:1px;top:-9.5px;width:20px;height:20px;border-radius:50%;border:1px solid var(--gold);opacity:.13}
 .wa-float:focus-visible{outline:1px solid var(--gold);outline-offset:4px}
 
 /* ---------- Hero ---------- */
@@ -420,6 +435,9 @@ footer{background:var(--deep);color:var(--mist);padding:clamp(96px,10vw,150px) v
 }
 @media (max-width:640px){
   :root{--nav:68px}
+  /* dark glass instead of the cream bar — the translucent warm white muddied to beige over dark sections */
+  header.nav.solid{background:rgba(8,16,25,.84);color:var(--salt);box-shadow:0 1px 0 rgba(217,191,140,.16)}
+  header.nav.solid .brand .wings,header.nav.solid .brand .wordmark{background-image:var(--gold-grad)}
   .brand{gap:6px}
   .brand .wings{width:66px}
   header.nav.solid .brand .wings{width:58px}
@@ -428,6 +446,8 @@ footer{background:var(--deep);color:var(--mist);padding:clamp(96px,10vw,150px) v
   .wordmark{font-size:15px;letter-spacing:.26em;margin-right:-.26em}
   .enquire{font-size:14px}
   .hero{height:auto;min-height:0;padding-top:calc(68px + env(safe-area-inset-top,0px));background:linear-gradient(180deg,var(--haze) 0%,var(--sky) 45%)}
+  /* keep the strip behind the nav deep navy even at golden hour, when haze is warm brown */
+  .hero::before{height:200px;background:linear-gradient(180deg,rgba(5,11,20,.82),rgba(5,11,20,0))}
   .hero-stage{position:relative;aspect-ratio:960/560;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
   .hero::after{display:none}
   .hero-text{position:relative;left:auto;right:auto;bottom:auto;padding:24px var(--pad) 72px}

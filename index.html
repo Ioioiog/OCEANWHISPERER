@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..500&display=swap">
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500&display=swap">
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=202610152015">
 </head>
 <body>
 
@@ -183,7 +183,7 @@
             <text class="f-label" x="58.9" y="46.0">Westpunt</text>
             <text class="f-label" x="690.5" y="590.3">Klein Curaçao</text>
             <g id="fWins"></g>
-            <g id="fHeli"><circle r="7" fill="#D9BF8C" opacity=".35" filter="url(#fGlow)"/><circle r="2.4" fill="#F5F4F1"/></g>
+            <g id="fHeli"><circle r="7" fill="#D9BF8C" opacity=".35" filter="url(#fGlow)"/><line x1="-2" y1="0" x2="-11" y2="0" stroke="#F5F4F1" stroke-width="1" stroke-linecap="round"/><circle r="11" fill="none" stroke="#D9BF8C" stroke-opacity=".14"/><g id="fRotor" stroke="#D9BF8C" stroke-width="1" stroke-linecap="round"><line x1="-9" y1="0" x2="9" y2="0"/><line x1="-9" y1="0" x2="9" y2="0" transform="rotate(90)"/></g><circle r="2.4" fill="#F5F4F1"/></g>
           </svg>
         </div>
         <div class="j-caption"><span id="jName">Willemstad Prelude</span><span>Routes illustrative</span></div>
@@ -345,14 +345,10 @@
 
 <!-- VIDEO: put the film's URL in data-src (MP4, H.264). -->
 <section class="film" id="journal" aria-label="Film" data-sound="journal">
-  <video id="filmVideo" preload="none" playsinline controls poster="assets/img/curacao-aerial.jpg" data-src=""></video>
-  <button class="film-cover" type="button" id="filmPlay" aria-label="Play the film">
-    <span class="film-play" aria-hidden="true"><i data-magnetic><svg width="14" height="16" viewBox="0 0 16 18"><path d="M2 1 L15 9 L2 17 Z" fill="currentColor"/></svg></i>Play the film</span>
+  <video id="filmVideo" preload="none" playsinline controls poster="assets/img/curacao-aerial.jpg" data-src="assets/video/Ocean%20Whisperer.webm"></video>
+  <button class="film-cover" type="button" id="filmPlay" aria-label="Watch the island unfold">
+    <span class="film-play" aria-hidden="true"><i data-magnetic><svg width="14" height="16" viewBox="0 0 16 18"><path d="M2 1 L15 9 L2 17 Z" fill="currentColor"/></svg></i>Watch the island unfold</span>
   </button>
-  <div class="film-foot on-dark">
-    <span>A quiet record of the island.</span>
-    <a class="link" href="journal/">Visit the Journal</a>
-  </div>
   <p class="film-msg" id="filmMsg" role="status">The film will be available soon.</p>
 </section>
 
@@ -518,6 +514,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="assets/js/main.js?v=202610152015"></script>
 </body>
 </html>

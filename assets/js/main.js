@@ -62,7 +62,7 @@ var PALETTES = {
   night:  {at: 'at night', name: 'night',       haze: '#0E1A2B', sky: '#050B14', land: '#0B1726', line: '#56748F', sea: '#070F1B', seaLine: '#2E4A66', route: '#D9BF8C', stars: 1},
   dawn:   {at: 'at dawn', name: 'dawn',        haze: '#5A4B62', sky: '#121A2C', land: '#1D2638', line: '#C9BCCB', sea: '#151D30', seaLine: '#6E6683', route: '#F0C9A0', stars: .25},
   day:    {at: 'in daylight', name: 'daylight',    haze: '#24566E', sky: '#081E30', land: '#123F57', line: '#BCDCE6', sea: '#0A2F45', seaLine: '#3F7F96', route: '#F3DCA6', stars: 0},
-  golden: {at: 'at golden hour', name: 'golden hour', haze: '#94684A', sky: '#16223A', land: '#26334A', line: '#F0CFA2', sea: '#1A2740', seaLine: '#8E6C57', route: '#F7CD85', stars: 0},
+  golden: {at: 'at golden hour', name: 'golden hour', haze: '#6E4527', sky: '#16223A', land: '#26334A', line: '#F0CFA2', sea: '#1A2740', seaLine: '#8E6C57', route: '#F7CD85', stars: 0},
   dusk:   {at: 'at dusk', name: 'dusk',        haze: '#3E3350', sky: '#0B1424', land: '#141F33', line: '#A3A7C9', sea: '#0E1829', seaLine: '#48486C', route: '#D9BF8C', stars: .6}
 };
 function sunHour(rising){
@@ -428,7 +428,9 @@ frameSvg();
     }
     fRoute.style.strokeDashoffset = (len * (1 - p)).toFixed(1);
     var pt = fRoute.getPointAtLength(len * p);
-    heli.setAttribute('transform', 'translate(' + pt.x.toFixed(1) + ' ' + pt.y.toFixed(1) + ')');
+    var pa = fRoute.getPointAtLength(Math.max(0, len * p - 4)), pb = fRoute.getPointAtLength(Math.min(len, len * p + 4));
+    var ang = Math.atan2(pb.y - pa.y, pb.x - pa.x) * 180 / Math.PI;
+    heli.setAttribute('transform', 'translate(' + pt.x.toFixed(1) + ' ' + pt.y.toFixed(1) + ') rotate(' + ang.toFixed(1) + ')');
     winEls.forEach(function(g, k){ g.style.opacity = k === idx ? (smooth(0.2, 0.34, p) * (1 - smooth(0.86, 0.97, p))).toFixed(2) : 0; });
     var z = smooth(0.02, 0.16, p) * (1 - smooth(0.86, 0.99, p));
     var zw = narrowMQ.matches ? 340 : 300;
@@ -444,6 +446,19 @@ frameSvg();
     svg.setAttribute('viewBox', (cam.x - cam.w / 2).toFixed(1) + ' ' + (cam.y - h / 2).toFixed(1) + ' ' + cam.w.toFixed(1) + ' ' + h.toFixed(1));
     if (Math.abs(tgt.x - cam.x) + Math.abs(tgt.y - cam.y) + Math.abs(tgt.w - cam.w) > 0.1) requestAnimationFrame(glide);
     else moving = false;
+  }
+  /* rotor spins with scroll speed, spools down to idle when the page is still */
+  var fRotor = $('#fRotor'), rotA = 0, rotV = 0, rotY = scrollY;
+  if (fRotor && !reduce){
+    (function rotorLoop(){
+      var y = scrollY, dy = Math.abs(y - rotY); rotY = y;
+      rotV += Math.min(dy, 60) * .1;
+      rotV *= .93;
+      if (rotV < .5) rotV = .5;
+      rotA = (rotA + rotV) % 360;
+      fRotor.setAttribute('transform', 'rotate(' + rotA.toFixed(1) + ')');
+      requestAnimationFrame(rotorLoop);
+    })();
   }
   scrollSubs.push(update); update();
 })();
@@ -1074,6 +1089,50 @@ $$('[data-social]').forEach(function(a){
     if (y > 560 && y > lastY + 4) document.body.classList.add('floats-away');
     else if (y < lastY - 4 || y <= 560) document.body.classList.remove('floats-away');
     lastY = y;
+  });
+})();
+
+/* ================= Route thread: the route continues down the page ================= */
+(function(){
+  var NS = 'http://www.w3.org/2000/svg';
+  var svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'thread');
+  svg.setAttribute('viewBox', '0 0 16 1000');
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.setAttribute('aria-hidden', 'true');
+  var D = 'M8,0 C13,180 3,380 8,500 C13,620 3,820 8,1000';
+  svg.innerHTML = '<path class="thread-base" d="' + D + '"/>' +
+    '<path class="thread-run" pathLength="1" d="' + D + '"/>';
+  document.body.appendChild(svg);
+  var heli = document.createElement('div');
+  heli.className = 'thread-heli'; heli.setAttribute('aria-hidden', 'true');
+  heli.innerHTML = '<i></i><b></b>';
+  document.body.appendChild(heli);
+  var run = svg.querySelector('.thread-run');
+  var L = run.getTotalLength();
+  run.style.strokeDashoffset = '1';
+  /* rotor spins with scroll speed, spools down to idle when the page is still */
+  var rotor = heli.firstChild, rotA = 0, rotV = 0, rotY = scrollY;
+  if (!reduce){
+    (function rotorLoop(){
+      var y = scrollY, dy = Math.abs(y - rotY); rotY = y;
+      rotV += Math.min(dy, 60) * .1;
+      rotV *= .93;
+      if (rotV < .5) rotV = .5;
+      rotA = (rotA + rotV) % 360;
+      rotor.style.transform = 'rotate(' + rotA.toFixed(1) + 'deg)';
+      requestAnimationFrame(rotorLoop);
+    })();
+  }
+  scrollSubs.push(function(){
+    var max = document.documentElement.scrollHeight - innerHeight;
+    var p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    run.style.strokeDashoffset = String(1 - p);
+    var pt = run.getPointAtLength(L * p);
+    var pa = run.getPointAtLength(Math.max(0, L * p - 3)), pb = run.getPointAtLength(Math.min(L, L * p + 3));
+    var r = svg.getBoundingClientRect();
+    var ang = Math.atan2((pb.y - pa.y) * r.height / 1000, (pb.x - pa.x) * r.width / 16) * 180 / Math.PI;
+    heli.style.transform = 'translate(' + (r.left + pt.x * r.width / 16) + 'px,' + (r.top + pt.y * r.height / 1000) + 'px) rotate(' + ang.toFixed(1) + 'deg)';
   });
 })();
 
