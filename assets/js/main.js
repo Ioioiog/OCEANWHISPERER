@@ -1168,7 +1168,7 @@ $$('[data-social]').forEach(function(a){
     if (note) note.style.opacity = String(Math.min(1, Math.max(0, (p - .4) * 9)));
     if (env && estage){
       env.classList.toggle('on', p > .3);
-      if (!envPlayed && p > .5){
+      if (!envPlayed && p > .32){
         envPlayed = true;
         [[400, 's1'], [1100, 's2'], [2000, 's3'], [3300, 's4'], [4000, 's5']].forEach(function(st){
           setTimeout(function(){ estage.classList.add(st[1]); }, st[0]);
@@ -1187,8 +1187,7 @@ $$('[data-social]').forEach(function(a){
   svg.setAttribute('preserveAspectRatio', 'none');
   svg.setAttribute('aria-hidden', 'true');
   var D = 'M8,0 C13,180 3,380 8,500 C13,620 3,820 8,1000';
-  svg.innerHTML = '<path class="thread-base" d="' + D + '"/>' +
-    '<path class="thread-run" pathLength="1" d="' + D + '"/>';
+  svg.innerHTML = '<path class="thread-run" d="' + D + '"/>';
   document.body.appendChild(svg);
   var heli = document.createElement('div');
   heli.className = 'thread-heli'; heli.setAttribute('aria-hidden', 'true');
@@ -1196,7 +1195,8 @@ $$('[data-social]').forEach(function(a){
   document.body.appendChild(heli);
   var run = svg.querySelector('.thread-run');
   var L = run.getTotalLength();
-  run.style.strokeDashoffset = '1';
+  run.style.strokeDasharray = String(L);
+  run.style.strokeDashoffset = String(L);
   /* stations: dots on .ritual items land on the thread, wherever it curves */
   var stations = $$('.ritual li');
   var tSamples = [];
@@ -1226,7 +1226,11 @@ $$('[data-social]').forEach(function(a){
     var max = document.documentElement.scrollHeight - innerHeight;
     var p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
     var r = svg.getBoundingClientRect();
-    run.style.strokeDashoffset = String(1 - p);
+    /* the drawn line trails the helicopter — dashoffset + a hard clip so nothing can render past the tail */
+    var tipL = Math.max(0, L * p - 22000 / r.height);
+    run.style.strokeDashoffset = String(L - tipL);
+    var tipY = run.getPointAtLength(tipL).y;
+    run.style.clipPath = 'inset(0 0 ' + Math.max(0, 1000 - tipY - 2) + 'px 0)';
     var pt = run.getPointAtLength(L * p);
     var pa = run.getPointAtLength(Math.max(0, L * p - 3)), pb = run.getPointAtLength(Math.min(L, L * p + 3));
     var ang = Math.atan2((pb.y - pa.y) * r.height / 1000, (pb.x - pa.x) * r.width / 16) * 180 / Math.PI;

@@ -47,6 +47,12 @@ p{margin:0}
 .btn:hover{background:transparent;color:var(--salt)}
 .btn.on-light{border-color:var(--ink);background:var(--ink);color:var(--salt)}
 .btn.on-light:hover{background:transparent;color:var(--ink)}
+.btn-gold{gap:18px;min-width:min(360px,80vw);min-height:0;padding:20px 38px;background:rgba(218,177,92,.06);border:1px solid rgba(225,190,112,.75);border-radius:3px;color:#E8C779;font-size:14px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:background .45s ease,color .45s ease,border-color .45s ease,box-shadow .45s ease,transform .45s ease}
+.btn-gold::after{content:"→";font-size:18px;transition:transform .45s ease}
+.btn-gold:hover{background:linear-gradient(110deg,#B98932,#E2BD68,#F2D995);color:#082638;border-color:transparent;box-shadow:0 12px 40px rgba(0,0,0,.25),0 0 30px rgba(218,177,92,.12);transform:translateY(-2px)}
+.btn-gold:hover::after{transform:translateX(5px)}
+.btn-gold.on-light{color:var(--gold-ink);border-color:rgba(169,122,37,.6);background:rgba(185,138,47,.07)}
+.btn-gold.on-light:hover{background:linear-gradient(110deg,#B98932,#E2BD68,#F2D995);color:#082638;border-color:transparent;box-shadow:0 12px 40px rgba(0,0,0,.25),0 0 30px rgba(218,177,92,.12);transform:translateY(-2px)}
 [data-magnetic]{will-change:transform}
 
 /* ---------- Header ---------- */
@@ -80,7 +86,7 @@ header.nav.solid .brand .wings{width:84px}
 .menu-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:84px}
 .menu-close{all:unset;cursor:pointer;justify-self:start;display:inline-flex;align-items:center;gap:14px;min-height:44px;font-size:15px}
 .menu ul{list-style:none;margin:0;padding:0;align-self:center;text-align:center}
-.menu li a{display:inline-block;padding:6px 0;font-family:var(--serif);font-weight:300;font-size:clamp(36px,5.4vw,72px);line-height:1.12;color:var(--salt);text-decoration:none;opacity:.6;transition:opacity .4s}
+.menu li a{display:inline-block;padding:5px 0;font-family:var(--serif);font-weight:300;font-size:clamp(30px,min(5.4vw,7vh),72px);line-height:1.12;color:var(--salt);text-decoration:none;opacity:.6;transition:opacity .4s}
 .menu li a:hover,.menu li a:focus-visible{opacity:1}
 .menu-foot{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;font-size:14px;color:var(--mist)}
 .menu-foot a{display:inline-block;padding:10px 0;color:var(--mist);text-decoration:none}
@@ -138,8 +144,7 @@ header.nav.solid .brand .wings{width:84px}
 /* ---------- Route thread: the journey continues down the page ---------- */
 .thread{position:fixed;left:max(4px,calc(var(--pad)*.32));top:0;width:24px;height:100vh;height:100svh;z-index:45;pointer-events:none}
 .thread path{fill:none;vector-effect:non-scaling-stroke}
-.thread-base{stroke:var(--brass-light);stroke-opacity:.15;stroke-dasharray:1.5 5}
-.thread-run{stroke:var(--gold);stroke-opacity:.6;stroke-width:1.2;stroke-linecap:round;stroke-dasharray:1}
+.thread-run{stroke:var(--gold);stroke-opacity:.6;stroke-width:1.2;stroke-linecap:round}
 .thread-glow{fill:var(--gold);opacity:.28}
 .thread-dot{fill:var(--gold)}
 .thread-heli{position:fixed;left:0;top:0;z-index:46;width:0;height:0;pointer-events:none}
@@ -178,10 +183,10 @@ header.nav.solid .brand .wings{width:84px}
 .hero-time b{font-weight:400;color:var(--salt)}
 
 /* ---------- Statement ---------- */
-.statement{min-height:230vh}
+.statement{min-height:175vh}
 .s-pin{position:sticky;top:0;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center}
-.st-env{position:absolute;left:0;right:0;bottom:4%;margin-inline:auto;width:min(300px,68vw);opacity:0;transform:translateY(50px);transition:opacity .9s,transform .9s;pointer-events:none}
-.st-env.on{opacity:1;transform:translateY(0)}
+.st-env{position:absolute;right:clamp(16px,5vw,80px);top:50%;bottom:auto;width:min(300px,68vw);opacity:0;transform:translateY(calc(-50% + 40px));transition:opacity .9s,transform .9s;pointer-events:none}
+.st-env.on{opacity:1;transform:translateY(-50%)}
 .st-env .stage{transform:scale(.55);transform-origin:bottom center}
 .st-env .env{margin-top:0}
 .st-env .card{box-shadow:0 30px 60px -20px rgba(0,0,0,.4)}
@@ -467,7 +472,11 @@ footer{background:var(--deep);color:var(--mist);padding:clamp(96px,10vw,150px) v
   .hero-text{position:relative;left:auto;right:auto;bottom:auto;padding:24px var(--pad) 72px}
   .hero h1{font-size:clamp(34px,9.6vw,42px)}
   .hero .btn{width:100%}
-  .statement{min-height:200vh}
+  .statement{min-height:160vh}
+  .statement .note{max-width:56%}
+  .st-env{right:2vw;left:auto;top:50%;bottom:auto;width:44vw;transform:translateY(calc(-50% + 40px))}
+  .st-env.on{transform:translateY(-50%)}
+  .st-env .stage{transform:scale(.38)}
   .journeys{padding-bottom:96px}
   .aircraft,.charter,.founders,.invite{padding-block:96px}
   .specs{grid-template-columns:1fr 1fr;row-gap:20px}
