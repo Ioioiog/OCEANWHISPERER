@@ -978,6 +978,7 @@ $$('[data-social]').forEach(function(a){
     var src = vid.getAttribute('data-src');
     if (!src){ var m = $('#filmMsg'); m.style.display = 'block'; setTimeout(function(){ m.style.display = 'none'; }, 2600); return; }
     if (!vid.getAttribute('src')) vid.src = src;
+    vid.setAttribute('controls', '');
     film.classList.add('playing'); vid.play().catch(function(){}); vid.focus();
   });
   vid.addEventListener('ended', function(){ film.classList.remove('playing'); vid.currentTime = 0; });
