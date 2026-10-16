@@ -1167,8 +1167,8 @@ $$('[data-social]').forEach(function(a){
     }
     if (note) note.style.opacity = String(Math.min(1, Math.max(0, (p - .4) * 9)));
     if (env && estage){
-      env.classList.toggle('on', p > .55);
-      if (!envPlayed && p > .62){
+      env.classList.toggle('on', p > .3);
+      if (!envPlayed && p > .5){
         envPlayed = true;
         [[400, 's1'], [1100, 's2'], [2000, 's3'], [3300, 's4'], [4000, 's5']].forEach(function(st){
           setTimeout(function(){ estage.classList.add(st[1]); }, st[0]);
