@@ -1058,12 +1058,11 @@ $$('[data-social]').forEach(function(a){
     function stop(f, text){ f.setAttribute('aria-invalid', 'true'); msg.textContent = text; f.focus(); }
     if (!name.value.trim()) return stop(name, 'Add your name so we know how to address you.');
     if (!email.value || !email.validity.valid) return stop(email, 'Add a valid email so we can reach you when reservations open.');
-    if (!date.value.trim()) return stop(date, 'Add a preferred date or window, even an approximate one.');
     if (!agree.checked) return stop(agree, 'Please confirm you understand this is not yet a reservation.');
     msg.textContent = 'Fields marked * are required. We reply personally, never with a newsletter.';
     info = {date: date.value.trim(), note: $('#fNote').value.trim(), name: name.value.trim(), journey: jSel ? jSel.value : 'Not decided yet', seat: seatVal(), no: '0' + String(10 + Math.floor(Math.random() * 90))};
     $('#cNo').textContent = info.no; $('#cFor').textContent = 'Reserved for ' + info.name;
-    $('#cDate').textContent = info.date; $('#cJourney').textContent = info.journey; $('#cSeat').textContent = SEATS[info.seat] + ', ' + info.seat.toLowerCase();
+    $('#cDate').textContent = info.date || 'Flexible'; $('#cJourney').textContent = info.journey; $('#cSeat').textContent = SEATS[info.seat] + ', ' + info.seat.toLowerCase();
     form.style.display = 'none';
     stage.className = 'stage show';
     var target = stage.getBoundingClientRect().top + scrollY + stage.offsetHeight - innerHeight + 60;
@@ -1109,7 +1108,7 @@ $$('[data-social]').forEach(function(a){
       g.fillText('Journey', 120, 1320); g.fillText('Seat', 120, 1375); g.fillText('Preferred date', 120, 1430);
       g.fillStyle = '#0B1524'; g.font = '500 32px ' + sans;
       g.fillText(info.journey || '', 380, 1320); g.fillText(info.seat ? SEATS[info.seat] + ', ' + info.seat.toLowerCase() : '', 380, 1375);
-      var dt = info.date || ''; while (dt.length > 3 && g.measureText(dt).width > 700) dt = dt.slice(0, -2); if (dt !== (info.date || '')) dt += '…';
+      var dt = info.date || 'Flexible'; while (dt.length > 3 && g.measureText(dt).width > 700) dt = dt.slice(0, -2); if (dt !== (info.date || 'Flexible')) dt += '…';
       g.fillText(dt, 380, 1430);
       g.fillStyle = '#5C636B'; g.font = '300 26px ' + sans; g.fillText('Curaçao International Airport, Willemstad', 120, 1500);
       c.toBlob(function(b){
