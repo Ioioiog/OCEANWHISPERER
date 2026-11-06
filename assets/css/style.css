@@ -459,8 +459,8 @@ footer{background:var(--deep);color:var(--mist);padding:clamp(96px,10vw,150px) v
   header.nav.solid{background:rgba(8,16,25,.84);color:var(--salt);box-shadow:0 1px 0 rgba(217,191,140,.16)}
   header.nav.solid .brand .wings,header.nav.solid .brand .wordmark{background-image:var(--gold-grad)}
   .brand{gap:5px;padding:0}
-  .brand .wings{width:64px}
-  header.nav.solid .brand .wings{width:54px}
+  .brand .wings{width:88px}
+  header.nav.solid .brand .wings{width:74px}
   .menu-top{height:68px}
   .menu-btn span,.menu-close span{display:none}
   .wordmark{font-size:15px;letter-spacing:.26em;margin-right:-.26em}
